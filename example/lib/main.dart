@@ -9,7 +9,7 @@ class MainView extends StatefulWidget {
 class _MainViewState extends State<MainView> {
   @override
   Widget build(BuildContext context) {
-    ByBit bybit = ByBit(apiKey: '', secret: '');
+    ByBit bybit = ByBit(key: '', password: '');
     bybit.connect();
     bybit.subscribeToKlines(symbol: 'ETHUSD', interval: '1');
     bybit.subscribeToKlines(symbol: 'ETHUSD', interval: 'D');

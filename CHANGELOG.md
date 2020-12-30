@@ -1,3 +1,4 @@
-## [0.0.1] - TODO: Add release date.
+## [0.1.0]
 
-* TODO: Describe initial release.
+* First version
+* WebSocket communication for private topics and klines
