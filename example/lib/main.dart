@@ -15,20 +15,17 @@ class _MainViewState extends State<MainView> {
     bybit.subscribeToKlines(symbol: 'ETHUSD', interval: 'D');
     //bybit.subscribeToPosition(); // with key authentication
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Container(
-        child: StreamBuilder(
-            stream: bybit.websocket.stream,
-            builder: (context, bybitResponse) {
-              // Handle the bybit response here
-              if (bybitResponse.hasData) {
-                print(bybitResponse.data);
-                return Container(child: Text(bybitResponse.data));
-              } else {
-                return Container();
-              }
-            }),
-      ),
+      home: StreamBuilder(
+          stream: bybit.websocket.stream,
+          builder: (context, bybitResponse) {
+            // Handle the bybit response here
+            if (bybitResponse.hasData) {
+              print(bybitResponse.data);
+              return Container(child: Text(bybitResponse.data));
+            } else {
+              return Container();
+            }
+          }),
     );
   }
 }
