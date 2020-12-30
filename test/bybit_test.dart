@@ -1,13 +1,25 @@
+import 'dart:convert';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:bybit/bybit.dart';
 
 void main() {
-  test('adds one to input values', () {
-    final calculator = Calculator();
-    expect(calculator.addOne(2), 3);
-    expect(calculator.addOne(-7), -6);
-    expect(calculator.addOne(0), 1);
-    expect(() => calculator.addOne(null), throwsNoSuchMethodError);
+  test('Test klines subscription', () {
+    ByBit bybit = ByBit();
+    bybit.connect();
+    bybit.subscribeToKlines(symbol: 'BTCUSD', interval: '1');
+    bybit.subscribeToKlines(symbol: 'BTCUSD', interval: 'D');
+    StreamBuilder(
+      stream: bybit.websocket.stream,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          var json = jsonDecode(snapshot.data);
+          expect((json['data'] != null), true);
+        }
+        return Container();
+      },
+    );
   });
 }

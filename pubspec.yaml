@@ -11,6 +11,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  web_socket_channel: ^1.1.0
+  crypto: ^2.1.5
+  logger: ^0.9.4
 
 dev_dependencies:
   flutter_test:
