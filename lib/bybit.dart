@@ -9,12 +9,22 @@ import 'package:crypto/crypto.dart';
 import 'package:bybit/topic.dart';
 
 class ByBit {
-  ///
-  final String url;
-  final String apiKey;
-  final String secret;
-  int timeout; // in milliseconds
+  /// WebSocket that is used for the bybit communication
   IOWebSocketChannel websocket;
+
+  /// Url to use for the WebSocket connection
+  final String url;
+
+  /// Your bybit api-key
+  final String apiKey;
+
+  /// Your api-key password
+  final String secret;
+
+  /// Timeout in milliseconds
+  int timeout;
+
+  /// For debugging purposes
   Logger logger;
 
   ByBit(
