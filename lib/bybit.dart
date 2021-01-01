@@ -56,6 +56,9 @@ class ByBit {
     rest = ByBitRest(key: key, password: password, url: restUrl, timeout: restTimeout);
   }
 
+  /// Get an instance of ByBit. Note that the parameters are only read the first time
+  /// that this function is called. Further calls to getInstance doesn't take the
+  /// parameters into account.
   static ByBit getInstance(
       {String key = '',
       String password = '',
