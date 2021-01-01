@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:bybit/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/status.dart' as status;
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 
@@ -26,8 +27,8 @@ class ByBitWebSocket {
   /// For easy debugging
   LoggerSingleton log;
 
-  /// Connect to the server with a WebSocket. A ping shall be send every [pingLooTimer] seconds
-  /// in order to keep the connection alive.
+  /// Connect to the server with a WebSocket. A ping shall be send every
+  /// [pingLooTimer] seconds in order to keep the connection alive.
   ByBitWebSocket(
       {this.url = 'wss://stream.bybit.com/realtime',
       this.key = '',
@@ -58,7 +59,7 @@ class ByBitWebSocket {
 
   /// Disconnect the WebSocket
   void disconnect() {
-    // todo
+    this.websocket.sink.close(status.goingAway);
   }
 
   /// Generate a signature needed for the WebSocket authentication as defined here:

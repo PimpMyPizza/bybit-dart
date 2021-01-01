@@ -247,8 +247,8 @@ class ByBit {
         withAuthentication: true);
   }
 
-  /// Cancel all active orders that are unfilled or partially filled. Fully filled orders cannot
-  /// be cancelled.
+  /// Cancel all active orders that are unfilled or partially filled. Fully
+  /// filled orders cannot be cancelled.
   /// https://bybit-exchange.github.io/docs/inverse/#t-cancelallactive
   Future<String> cancelAllActiveOrders({@required String symbol}) {
     log.i('Cancel all active orders');
