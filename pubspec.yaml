@@ -1,7 +1,7 @@
 name: bybit
-description: A Dart library for WebSocket communication with the bybit API
-version: 0.1.0
-homepage: https://github.com/PimpMyPizza/bybit-dart
+description: (Unofficial) Dart library to communicate with the bybit API
+version: 0.2.0
+homepage: pub.dev/packages/bybit
 repository: https://github.com/PimpMyPizza/bybit-dart
 issue_tracker: https://github.com/PimpMyPizza/bybit-dart/issues
 

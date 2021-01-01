@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:bybit/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/status.dart' as status;
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 
@@ -26,8 +27,8 @@ class ByBitWebSocket {
   /// For easy debugging
   LoggerSingleton log;
 
-  /// Connect to the server with a WebSocket. A ping shall be send every [pingLooTimer] seconds
-  /// in order to keep the connection alive.
+  /// Connect to the server with a WebSocket. A ping shall be send every
+  /// [pingLooTimer] seconds in order to keep the connection alive.
   ByBitWebSocket(
       {this.url = 'wss://stream.bybit.com/realtime',
       this.key = '',
@@ -46,15 +47,19 @@ class ByBitWebSocket {
   void connect() {
     int timestamp = DateTime.now().millisecondsSinceEpoch + this.timeout;
     String signature = sign(secret: this.password, timestamp: timestamp);
-    String param =
-        'api_key=' + this.key + '&expires=' + timestamp.toString() + '&signature=' + signature;
+    String param = 'api_key=' +
+        this.key +
+        '&expires=' +
+        timestamp.toString() +
+        '&signature=' +
+        signature;
     log.i('Open WebSocket on: ' + this.url + '?' + param);
     this.websocket = IOWebSocketChannel.connect(this.url + '?' + param);
   }
 
   /// Disconnect the WebSocket
   void disconnect() {
-    // todo
+    this.websocket.sink.close(status.goingAway);
   }
 
   /// Generate a signature needed for the WebSocket authentication as defined here:
@@ -78,7 +83,8 @@ class ByBitWebSocket {
   }
 
   /// send a subscribtion request to a specific [topic] to Bybit
-  void subscribeTo({@required String topic, String symbol = '', String filter = ''}) {
+  void subscribeTo(
+      {@required String topic, String symbol = '', String filter = ''}) {
     List<String> args = [];
     args.add(topic);
     if (filter != null && filter != '') args.add(filter);
