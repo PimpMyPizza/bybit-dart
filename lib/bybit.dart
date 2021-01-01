@@ -390,7 +390,8 @@ class ByBit {
 
   /// Query conditional order
   /// https://bybit-exchange.github.io/docs/inverse/#t-querycond
-  Future<String> gets({@required String symbol, String stopOrderId, String orderLinkId}) {
+  Future<String> getConditionalOrder(
+      {@required String symbol, String stopOrderId, String orderLinkId}) {
     log.i('Query conditional order');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     parameters['symbol'] = symbol;
