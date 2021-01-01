@@ -1,35 +1,33 @@
+import 'package:example/example_bybit_rest.dart';
+import 'package:example/example_bybit_websocket.dart';
 import 'package:flutter/material.dart';
 import 'package:bybit/bybit.dart';
 
-class MainView extends StatefulWidget {
+class Example extends StatefulWidget {
   @override
-  _MainViewState createState() => _MainViewState();
+  _ExampleState createState() => _ExampleState();
 }
 
-class _MainViewState extends State<MainView> {
+class _ExampleState extends State<Example> {
   @override
   Widget build(BuildContext context) {
-    ByBit bybit = ByBit(key: '', password: '');
+    ByBit bybit = ByBit.getInstance(
+        key: "8YycMEZZOWOD13k3Bx",
+        password: "9qgfKOqOVBhRmMpED8jACxBMbtEHgJNKJw2M",
+        logLevel: 'INFO',
+        restUrl: 'https://api.bybit.com',
+        restTimeout: 3000,
+        websocketUrl: 'wss://stream.bytick.com/realtime',
+        websocketTimeout: 2000);
     bybit.connect();
-    bybit.subscribeToKlines(symbol: 'ETHUSD', interval: '1');
-    bybit.subscribeToKlines(symbol: 'ETHUSD', interval: 'D');
-    //bybit.subscribeToPosition(); // with key authentication
     return MaterialApp(
-      home: StreamBuilder(
-          stream: bybit.websocket.stream,
-          builder: (context, bybitResponse) {
-            // Handle the bybit response here
-            if (bybitResponse.hasData) {
-              print(bybitResponse.data);
-              return Container(child: Text(bybitResponse.data));
-            } else {
-              return Container();
-            }
-          }),
-    );
+        home: Column(children: <Widget>[
+      Container(height: 300, color: Colors.blue, child: ExampleByBitWebSocket()),
+      Container(height: 300, color: Colors.green, child: ExampleByBitREST())
+    ]));
   }
 }
 
 void main() {
-  runApp(MainView());
+  runApp(Example());
 }

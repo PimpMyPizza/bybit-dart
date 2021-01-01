@@ -12,7 +12,7 @@ void main() {
     bybit.subscribeToKlines(symbol: 'BTCUSD', interval: '1');
     bybit.subscribeToKlines(symbol: 'BTCUSD', interval: 'D');
     StreamBuilder(
-      stream: bybit.websocket.stream,
+      stream: bybit.websocket.websocket.stream,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           var json = jsonDecode(snapshot.data);
