@@ -1,7 +1,7 @@
 name: bybit
 description: (Unofficial) Dart library to communicate with the bybit API
 version: 0.2.0
-homepage: pub.dev/packages/bybit
+homepage: https://pub.dev/packages/bybit
 repository: https://github.com/PimpMyPizza/bybit-dart
 issue_tracker: https://github.com/PimpMyPizza/bybit-dart/issues
 
