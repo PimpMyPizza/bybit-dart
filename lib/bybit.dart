@@ -246,7 +246,7 @@ class ByBit {
 
   /// Replace order can modify/amend your active orders.
   /// https://bybit-exchange.github.io/docs/inverse/#t-replaceactive
-  Future<String> replaceActiveOrder(
+  Future<String> updateActiveOrder(
       {@required String symbol,
       String orderId,
       String orderLinkId,
@@ -364,16 +364,16 @@ class ByBit {
         withAuthentication: true);
   }
 
-  /// Replace conditional order
+  /// Update conditional order
   /// https://bybit-exchange.github.io/docs/inverse/#t-replacecond
-  Future<String> replaceConditionalOrder(
+  Future<String> updateConditionalOrder(
       {@required String symbol,
       String stopOrderId,
       String orderLinkId,
       String newOrderQuantity,
       String newOrderPrice,
       String newTriggerPrice}) {
-    log.i('replace conditional order');
+    log.i('Update conditional order');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     parameters['symbol'] = symbol;
     if (stopOrderId != null) parameters['stop_order_id'] = stopOrderId;
@@ -419,7 +419,7 @@ class ByBit {
 
   /// Update margin
   /// https://bybit-exchange.github.io/docs/inverse/#t-changemargin
-  Future<String> updateMargin({@required String symbol, @required double margin}) {
+  Future<String> setMargin({@required String symbol, @required double margin}) {
     log.i('Update margin');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     parameters['symbol'] = symbol;

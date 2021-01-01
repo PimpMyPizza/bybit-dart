@@ -3,63 +3,152 @@
 
 ByBit is a [Dart](https://dart.dev/) package for a communication with the [bybit](https://www.bybit.com/) exchange platform [API](https://bybit-exchange.github.io/docs/inverse/#t-introduction)
 
-* [getInstance](#getInstance)
-* [connect](#connect)
-* [disconnect](#disconnect)
-* [getOrderBook](#getOrderBook)
-* [getKLine](#getKLine)
-* [getTickers](#getTickers)
-* [getTradingRecords](#getTradingRecords)
-* [getSymbolsInfo](#getSymbolsInfo)
-* [getLiquidatedOrders](#getLiquidatedOrders)
-* [placeActiveOrder](#placeActiveOrder)
-* [getActiveOrder](#getActiveOrder)
-* [cancelActiveOrder](#cancelActiveOrder)
-* [cancelAllActiveOrders](#cancelAllActiveOrders)
-* [replaceActiveOrder](#replaceActiveOrder)
-* [getRealTimeActiveOrder](#getRealTimeActiveOrder)
-* [placeConditionalOrder](#placeConditionalOrder)
-* [getConditionalOrders](#getConditionalOrders)
-* [cancelConditionalOrder](#cancelConditionalOrder)
-* [cancelAllConditionalOrders](#cancelAllConditionalOrders)
-* [replaceConditionalOrder](#replaceConditionalOrder)
-* [getConditionalOrder](#getConditionalOrder)
-* [getPosition](#getPosition)
-* [updateMargin](#updateMargin)
-* [setTradingStop](#setTradingStop)
-* [setLeverage](#setLeverage)
-* [getUserTradingRecords](#getUserTradingRecords)
-* [getUserClosedProfit](#getUserClosedProfit)
-* [getRiskLimit](#getRiskLimit)
-* [setRiskLimit](#setRiskLimit)
-* [getFundingRate](#getFundingRate)
-* [getPreviousFundingFee](#getPreviousFundingFee)
-* [getPredictedFundingRateAndFundingFee](#getPredictedFundingRateAndFundingFee)
-* [getApiKeyInfo](#getApiKeyInfo)
-* [getUserLCP](#getUserLCP)
-* [getWalletBalance](#getWalletBalance)
-* [getWalletFundRecords](#getWalletFundRecords)
-* [getWithdrawalRecords](#getWithdrawalRecords)
-* [getAssetExchangeRecords](#getAssetExchangeRecords)
-* [getServerTime](#getServerTime)
-* [getAnnouncement](#getAnnouncement)
-* [ping](#ping)
-* [subscribeToKlines](#subscribeToKlines)
-* [subscribeToOrderBook](#subscribeToOrderBook)
-* [subscribeToTrades](#subscribeToTrades)
-* [subscribeToInsurance](#subscribeToInsurance)
-* [subscribeToInstrumentInfo](#subscribeToInstrumentInfo)
-* [subscribeToPosition](#subscribeToPosition)
-* [subscribeToExecution](#subscribeToExecution)
-* [subscribeToOrder](#subscribeToOrder)
-* [subscribeToStopOrder](#subscribeToStopOrder)
+## Table of content
+- [How to use](#How-to-use)
+- [Example](#Example)
+- [List of functions](#List-of-functions)
+
+## How to use
+
+- Import the library
+
+``` Dart
+import 'package:bybit/bybit.dart';
+```
+
+- Create a ByBit instance
+
+Use the `getInstance` function to create an instance of ByBit. Note that the first parameters that you give to the function can't be changed after the first call of getInstance
+
+``` Dart
+ByBit bybit = ByBit.getInstance(
+        key: 'yOuRsUpErKey',
+        password: 'yOuRsUpErPaSsWoRd',
+        logLevel: 'INFO',
+        restUrl: 'https://api.bybit.com',
+        restTimeout: 3000,
+        websocketUrl: 'wss://stream.bytick.com/realtime',
+        websocketTimeout: 2000);
+// otherBybitInstance will have the same parameters as bybit. Doesn't matter what parameters you give here.
+ByBit otherBybitInstance = ByBit.getInstance(key: 'OtHeRkEyLoLoLoL', restTimeout: 1000);
+```
+
+- Connect
+
+If you want to use WebSocket streams. If you just want to make REST API calls, no need to connect
+``` Dart
+bybit.connect();
+```
+
+- Subscribe to topics and read stream if you want
+
+Note that some topics are public and doesn't require a valid api-key and password. If you only want to use public topics, you don't need to pass the `key` and `password` to the `ByBit.getInstance(...)` function.
+
+Note also the `websocket.websocket`
+``` Dart
+// ...
+bybit.subscribeToKlines(symbol: 'ETHUSD', interval: '1');
+bybit.subscribeToKlines(symbol: 'BTCUSD', interval: 'D');
+bybit.subscribeToOrderBook(depth: 25);
+// ...
+StreamBuilder(
+    stream: bybit.websocket.websocket.stream,
+    builder: (context, bybitResponse) {
+          print('From WebSocket: ' + bybitResponse.data.toString());
+          //...
+    }
+),
+//...
+```
+
+- Make some HTTP request if you want
+
+``` Dart
+// ...
+FutureBuilder(
+    future: bybit.getKLine(symbol: 'BTCUSD', from: 1581231260, interval: 'D'),
+    builder: (context, bybitResponse) {
+        // Handle the bybit response here
+        if (bybitResponse.hasData && bybitResponse.data != null) {
+          print('From REST: ' + bybitResponse.data.toString());
+          //...
+```
+
+## Example
+
+See [the file example/lib/main.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main.dart) for a concrete example of WebSocket (stream) and Future (http) communication
+
+## List of functions
+- Initialization:
+    * [getInstance](#getInstance)
+    * [connect](#connect)
+    * [disconnect](#disconnect)
+- Market data endpoints:
+    * [getOrderBook](#getOrderBook)
+    * [getKLine](#getKLine)
+    * [getTickers](#getTickers)
+    * [getTradingRecords](#getTradingRecords)
+    * [getSymbolsInfo](#getSymbolsInfo)
+    * [getLiquidatedOrders](#getLiquidatedOrders)
+- Account data endpoints:
+    - Active orders:
+        * [placeActiveOrder](#placeActiveOrder)
+        * [updateActiveOrder](#updateActiveOrder)
+        * [getActiveOrder](#getActiveOrder)
+        * [getRealTimeActiveOrder](#getRealTimeActiveOrder)
+        * [cancelActiveOrder](#cancelActiveOrder)
+        * [cancelAllActiveOrders](#cancelAllActiveOrders)
+    - Conditional orders:
+        * [placeConditionalOrder](#placeConditionalOrder)
+        * [updateConditionalOrder](#updateConditionalOrder)
+        * [getConditionalOrder](#getConditionalOrder)
+        * [getConditionalOrders](#getConditionalOrders)
+        * [cancelConditionalOrder](#cancelConditionalOrder)
+        * [cancelAllConditionalOrders](#cancelAllConditionalOrders)
+    - Position:
+        * [getPosition](#getPosition)
+        * [setMargin](#setMargin)
+        * [setTradingStop](#setTradingStop)
+        * [setLeverage](#setLeverage)
+        * [getUserTradingRecords](#getUserTradingRecords)
+        * [getUserClosedProfit](#getUserClosedProfit)
+    - Risk limit:
+        * [getRiskLimit](#getRiskLimit)
+        * [setRiskLimit](#setRiskLimit)
+    - Funding:
+        * [getFundingRate](#getFundingRate)
+        * [getPreviousFundingFee](#getPreviousFundingFee)
+        * [getPredictedFundingRateAndFundingFee](#getPredictedFundingRateAndFundingFee)
+    - API key information:
+        * [getApiKeyInfo](#getApiKeyInfo)
+    - LCP information:
+        * [getUserLCP](#getUserLCP)
+    - Wallet
+        * [getWalletBalance](#getWalletBalance)
+        * [getWalletFundRecords](#getWalletFundRecords)
+        * [getWithdrawalRecords](#getWithdrawalRecords)
+        * [getAssetExchangeRecords](#getAssetExchangeRecords)
+- API data endpoints:
+    * [getServerTime](#getServerTime)
+    * [getAnnouncement](#getAnnouncement)
+- WebSocket data:
+    * [ping](#ping)
+    * [subscribeToKlines](#subscribeToKlines)
+    * [subscribeToOrderBook](#subscribeToOrderBook)
+    * [subscribeToTrades](#subscribeToTrades)
+    * [subscribeToInsurance](#subscribeToInsurance)
+    * [subscribeToInstrumentInfo](#subscribeToInstrumentInfo)
+    * [subscribeToPosition](#subscribeToPosition)
+    * [subscribeToExecution](#subscribeToExecution)
+    * [subscribeToOrder](#subscribeToOrder)
+    * [subscribeToStopOrder](#subscribeToStopOrder)
 
 ----------------------------------------------------------------------------------
 
 
 ### getInstance
 
-  
+
 
 ### connect
 
@@ -151,7 +240,7 @@ be cancelled.
 
 [official doc](https://bybit-exchange.github.io/docs/inverse/#t-cancelallactive)
 
-### replaceActiveOrder
+### updateActiveOrder
 
 Replace order can modify/amend your active orders.
 
@@ -195,7 +284,7 @@ Cancel all untriggered conditional orders
 
   
 
-### replaceConditionalOrder
+### updateConditionalOrder
 
 Replace conditional order
 
@@ -215,7 +304,7 @@ Get user position list
 
 [official doc](https://bybit-exchange.github.io/docs/inverse/?console#t-myposition)
 
-### updateMargin
+### setMargin
 
 Update margin
 
