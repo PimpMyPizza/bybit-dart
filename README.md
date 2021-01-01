@@ -1,9 +1,12 @@
+[![pub package][pub]][pub-link]
 [![BSD License][license-badge]][license-link]
 [![PRs Welcome][prs-badge]][prs-link]
 [![Watch on GitHub][github-watch-badge]][github-watch-link]
 [![Star on GitHub][github-star-badge]][github-star-link]
 [![Watch on GitHub][github-forks-badge]][github-forks-link]
 
+[pub]: https://img.shields.io/pub/v/bybit.svg?style=for-the-badge
+[pub-link]: https://pub.dev/packages/bybit
 [license-badge]: https://img.shields.io/github/license/PimpMyPizza/bybit-dart.svg?style=for-the-badge
 [license-link]: https://github.com/PimpMyPizza/bybit-dart/blob/main/LICENSE
 [prs-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge
