@@ -10,13 +10,13 @@ ByBit is a [Dart](https://dart.dev/) package for a communication with the [bybit
 
 ## How to use
 
-- Import the library
+### Import the library
 
 ``` Dart
 import 'package:bybit/bybit.dart';
 ```
 
-- Create a ByBit instance
+### Create a ByBit instance
 
 Use the `getInstance` function to create an instance of ByBit. Note that the first parameters that you give to the function can't be changed after the first call of getInstance
 
@@ -33,14 +33,14 @@ ByBit bybit = ByBit.getInstance(
 ByBit otherBybitInstance = ByBit.getInstance(key: 'OtHeRkEyLoLoLoL', restTimeout: 1000);
 ```
 
-- Connect
+### Connect
 
 If you want to use WebSocket streams. If you just want to make REST API calls, no need to connect
 ``` Dart
 bybit.connect();
 ```
 
-- Subscribe to topics and read stream if you want
+### Subscribe to topics and read stream if you want
 
 Note that some topics are public and doesn't require a valid api-key and password. If you only want to use public topics, you don't need to pass the `key` and `password` to the `ByBit.getInstance(...)` function.
 
@@ -61,7 +61,7 @@ StreamBuilder(
 //...
 ```
 
-- Make some HTTP request if you want
+### Make some HTTP request if you want
 
 ``` Dart
 // ...
