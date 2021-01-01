@@ -3,7 +3,6 @@
 [![PRs Welcome][prs-badge]][prs-link]
 [![Watch on GitHub][github-watch-badge]][github-watch-link]
 [![Star on GitHub][github-star-badge]][github-star-link]
-[![Watch on GitHub][github-forks-badge]][github-forks-link]
 
 [pub]: https://img.shields.io/pub/v/bybit.svg?style=for-the-badge
 [pub-link]: https://pub.dev/packages/bybit
@@ -16,8 +15,6 @@
 [github-watch-link]: https://github.com/PimpMyPizza/bybit-dart/watchers
 [github-star-badge]: https://img.shields.io/github/stars/PimpMyPizza/bybit-dart.svg?style=for-the-badge&logo=github&logoColor=ffffff
 [github-star-link]: https://github.com/PimpMyPizza/bybit-dart/stargazers
-[github-forks-badge]: https://img.shields.io/github/forks/PimpMyPizza/bybit-dart.svg?style=for-the-badge&logo=github&logoColor=ffffff
-[github-forks-link]: https://github.com/PimpMyPizza/bybit-dart/network/members
 
 
 # ByBit
