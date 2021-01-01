@@ -46,8 +46,12 @@ class ByBitWebSocket {
   void connect() {
     int timestamp = DateTime.now().millisecondsSinceEpoch + this.timeout;
     String signature = sign(secret: this.password, timestamp: timestamp);
-    String param =
-        'api_key=' + this.key + '&expires=' + timestamp.toString() + '&signature=' + signature;
+    String param = 'api_key=' +
+        this.key +
+        '&expires=' +
+        timestamp.toString() +
+        '&signature=' +
+        signature;
     log.i('Open WebSocket on: ' + this.url + '?' + param);
     this.websocket = IOWebSocketChannel.connect(this.url + '?' + param);
   }
@@ -78,7 +82,8 @@ class ByBitWebSocket {
   }
 
   /// send a subscribtion request to a specific [topic] to Bybit
-  void subscribeTo({@required String topic, String symbol = '', String filter = ''}) {
+  void subscribeTo(
+      {@required String topic, String symbol = '', String filter = ''}) {
     List<String> args = [];
     args.add(topic);
     if (filter != null && filter != '') args.add(filter);

@@ -55,7 +55,8 @@ class Example extends StatelessWidget {
     bybit.connect();
     return MaterialApp(
         home: Column(children: <Widget>[
-      Container(height: 300, color: Colors.blue, child: ExampleByBitWebSocket()),
+      Container(
+          height: 300, color: Colors.blue, child: ExampleByBitWebSocket()),
       Container(height: 300, color: Colors.green, child: ExampleByBitREST())
     ]));
   }

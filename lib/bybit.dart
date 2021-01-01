@@ -28,14 +28,14 @@ class ByBit {
   /// To generate your key. If you're using the websockets, a ping will be
   /// sent every [pingLoopTimer] seconds to the server to maintain connection
   ByBit(
-      {String key,
-      String password,
-      String restUrl,
-      int restTimeout,
-      String websocketUrl,
-      int websocketTimeout,
-      int pingLoopTimer,
-      String logLevel}) {
+      {String key = '',
+      String password = '',
+      String restUrl = 'https://api.bybit.com',
+      int restTimeout = 3000,
+      String websocketUrl = 'wss://stream.bybit.com/realtime',
+      int websocketTimeout = 1000,
+      int pingLoopTimer = 30,
+      String logLevel = 'WARNING'}) {
     log = LoggerSingleton();
     if (logLevel == 'ERROR')
       Logger.level = Level.error;
@@ -53,7 +53,8 @@ class ByBit {
         timeout: websocketTimeout,
         url: websocketUrl,
         pingLoopTimer: pingLoopTimer);
-    rest = ByBitRest(key: key, password: password, url: restUrl, timeout: restTimeout);
+    rest = ByBitRest(
+        key: key, password: password, url: restUrl, timeout: restTimeout);
   }
 
   /// Get an instance of ByBit. Note that the parameters are only read the first time
@@ -103,7 +104,8 @@ class ByBit {
     log.i('Get order book');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     parameters['symbol'] = symbol;
-    return rest.request(path: '/v2/public/orderBook/L2', type: 'GET', parameters: parameters);
+    return rest.request(
+        path: '/v2/public/orderBook/L2', type: 'GET', parameters: parameters);
   }
 
   /// Get kline. https://bybit-exchange.github.io/docs/inverse/?console#t-querykline
@@ -118,7 +120,8 @@ class ByBit {
     parameters['interval'] = interval;
     parameters['from'] = from;
     if (limit > 0) parameters['limit'] = limit;
-    return rest.request(path: '/v2/public/kline/list', type: 'GET', parameters: parameters);
+    return rest.request(
+        path: '/v2/public/kline/list', type: 'GET', parameters: parameters);
   }
 
   /// Get the latest information for symbol.
@@ -127,18 +130,23 @@ class ByBit {
     log.i('Get tickers');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     if (symbol != null) parameters['symbol'] = symbol;
-    return rest.request(path: '/v2/public/tickers', type: 'GET', parameters: parameters);
+    return rest.request(
+        path: '/v2/public/tickers', type: 'GET', parameters: parameters);
   }
 
   /// Get recent trades.
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-publictradingrecords
-  Future<String> getTradingRecords({@required String symbol, int from, int limit}) {
+  Future<String> getTradingRecords(
+      {@required String symbol, int from, int limit}) {
     log.i('Get trading records');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     parameters['symbol'] = symbol;
     if (from != null) parameters['from'] = from;
     if (limit != null) parameters['limit'] = limit;
-    return rest.request(path: '/v2/public/trading-records', type: 'GET', parameters: parameters);
+    return rest.request(
+        path: '/v2/public/trading-records',
+        type: 'GET',
+        parameters: parameters);
   }
 
   /// Get symbol info.
@@ -151,7 +159,11 @@ class ByBit {
   /// Retrieve the liquidated orders, The query range is the last seven days of data.
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-querysymbol
   Future<String> getLiquidatedOrders(
-      {@required String symbol, int from, int limit, int startTime, int endTime}) {
+      {@required String symbol,
+      int from,
+      int limit,
+      int startTime,
+      int endTime}) {
     log.i('Get the liquidated orders');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     parameters['symbol'] = symbol;
@@ -159,7 +171,8 @@ class ByBit {
     if (limit != null) parameters['limit'] = limit;
     if (startTime != null) parameters['start_time'] = startTime;
     if (endTime != null) parameters['end_time'] = endTime;
-    return rest.request(path: '/v2/public/liq-records', type: 'GET', parameters: parameters);
+    return rest.request(
+        path: '/v2/public/liq-records', type: 'GET', parameters: parameters);
   }
 
   /// Place active order
@@ -220,7 +233,8 @@ class ByBit {
 
   /// Cancel active order. Note that either orderId or orderLinkId are required
   /// https://bybit-exchange.github.io/docs/inverse/#t-cancelactive
-  Future<String> cancelActiveOrder({@required String symbol, String orderId, String orderLinkId}) {
+  Future<String> cancelActiveOrder(
+      {@required String symbol, String orderId, String orderLinkId}) {
     log.i('Cancel active order');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     parameters['symbol'] = symbol;
@@ -260,8 +274,10 @@ class ByBit {
     parameters['symbol'] = symbol;
     if (orderId != null) parameters['order_id'] = orderId;
     if (orderLinkId != null) parameters['order_link_id'] = orderLinkId;
-    if (newOrderQuantity != null) parameters['p_r_qty'] = newOrderQuantity.toString();
-    if (newOrderPrice != null) parameters['p_r_price'] = newOrderPrice.toString();
+    if (newOrderQuantity != null)
+      parameters['p_r_qty'] = newOrderQuantity.toString();
+    if (newOrderPrice != null)
+      parameters['p_r_price'] = newOrderPrice.toString();
     return rest.request(
         path: '/v2/private/order/replace',
         type: 'POST',
@@ -279,7 +295,10 @@ class ByBit {
     if (orderId != null) parameters['order_id'] = orderId;
     if (orderLinkId != null) parameters['order_link_id'] = orderLinkId;
     return rest.request(
-        path: '/v2/private/order', type: 'GET', parameters: parameters, withAuthentication: true);
+        path: '/v2/private/order',
+        type: 'GET',
+        parameters: parameters,
+        withAuthentication: true);
   }
 
   /// Place a market price conditional order
@@ -327,7 +346,8 @@ class ByBit {
     log.i('Get user conditional order list.');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     parameters['symbol'] = symbol;
-    if (stopOrderStatus != null) parameters['stop_order_status'] = stopOrderStatus;
+    if (stopOrderStatus != null)
+      parameters['stop_order_status'] = stopOrderStatus;
     if (direction != null) parameters['direction'] = direction;
     if (limit != null) parameters['limit'] = limit;
     if (cursor != null) parameters['cursor'] = cursor;
@@ -383,7 +403,8 @@ class ByBit {
     if (orderLinkId != null) parameters['order_link_id'] = orderLinkId;
     if (newOrderQuantity != null) parameters['p_r_qty'] = newOrderQuantity;
     if (newOrderPrice != null) parameters['p_r_price'] = newOrderPrice;
-    if (newTriggerPrice != null) parameters['p_r_trigger_price'] = newTriggerPrice;
+    if (newTriggerPrice != null)
+      parameters['p_r_trigger_price'] = newTriggerPrice;
     return rest.request(
         path: '/v2/private/stop-order/replace',
         type: 'POST',
@@ -463,7 +484,8 @@ class ByBit {
 
   /// Set leverage
   /// https://bybit-exchange.github.io/docs/inverse/#t-setleverage
-  Future<String> setLeverage({@required String symbol, @required double leverage}) {
+  Future<String> setLeverage(
+      {@required String symbol, @required double leverage}) {
     log.i('Set leverage.');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     parameters['symbol'] = symbol;
@@ -478,7 +500,12 @@ class ByBit {
   /// Get user's trading records.
   /// https://bybit-exchange.github.io/docs/inverse/#t-usertraderecords
   Future<String> getUserTradingRecords(
-      {@required String symbol, String orderId, int startTime, int page, int limit, String order}) {
+      {@required String symbol,
+      String orderId,
+      int startTime,
+      int page,
+      int limit,
+      String order}) {
     log.i('Get user trading records.');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     parameters['symbol'] = symbol;
@@ -497,7 +524,12 @@ class ByBit {
   /// Get user's closed profit and loss records.
   /// https://bybit-exchange.github.io/docs/inverse/#t-closedprofitandloss
   Future<String> getUserClosedProfit(
-      {@required String symbol, int startTime, int endTime, String execType, int page, int limit}) {
+      {@required String symbol,
+      int startTime,
+      int endTime,
+      String execType,
+      int page,
+      int limit}) {
     log.i('Get user closed profit (PNL)');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     parameters['symbol'] = symbol;
@@ -518,7 +550,9 @@ class ByBit {
   Future<String> getRiskLimit() {
     log.i('Get risk limit.');
     return rest.request(
-        path: '/open-api/wallet/risk-limit/list', type: 'GET', withAuthentication: true);
+        path: '/open-api/wallet/risk-limit/list',
+        type: 'GET',
+        withAuthentication: true);
   }
 
   /// Set risk limit
@@ -563,7 +597,8 @@ class ByBit {
 
   /// Get predicted funding rate and my funding fee.
   /// https://bybit-exchange.github.io/docs/inverse/#t-predictedfunding
-  Future<String> getPredictedFundingRateAndFundingFee({@required String symbol}) {
+  Future<String> getPredictedFundingRateAndFundingFee(
+      {@required String symbol}) {
     log.i('Get predicted funding rate and funding fee.');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     parameters['symbol'] = symbol;
@@ -578,7 +613,10 @@ class ByBit {
   /// https://bybit-exchange.github.io/docs/inverse/#t-key
   Future<String> getApiKeyInfo() {
     log.i('Get user API key information.');
-    return rest.request(path: '/v2/private/account/api-key', type: 'GET', withAuthentication: true);
+    return rest.request(
+        path: '/v2/private/account/api-key',
+        type: 'GET',
+        withAuthentication: true);
   }
 
   /// Get user's LCP (data refreshes once an hour).
@@ -620,7 +658,8 @@ class ByBit {
     Map<String, dynamic> parameters = Map<String, dynamic>();
     if (currency != null) parameters['currency'] = currency;
     if (currency != null) parameters['coin'] = currency;
-    if (startTimestamp != null) parameters['start_date'] = startTimestamp.toString();
+    if (startTimestamp != null)
+      parameters['start_date'] = startTimestamp.toString();
     if (endTimestamp != null) parameters['end_date'] = endTimestamp.toString();
     if (walletFundType != null) parameters['wallet_fund_type'] = walletFundType;
     if (page != null) parameters['page'] = page;
@@ -635,11 +674,17 @@ class ByBit {
   /// Get withdrawal records.
   /// https://bybit-exchange.github.io/docs/inverse/#t-withdrawrecords
   Future<String> getWithdrawalRecords(
-      {String currency, int startTimestamp, int endTimestamp, String status, int page, int limit}) {
+      {String currency,
+      int startTimestamp,
+      int endTimestamp,
+      String status,
+      int page,
+      int limit}) {
     log.i('Get withdrawal records.');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     if (currency != null) parameters['coin'] = currency;
-    if (startTimestamp != null) parameters['start_date'] = startTimestamp.toString();
+    if (startTimestamp != null)
+      parameters['start_date'] = startTimestamp.toString();
     if (endTimestamp != null) parameters['end_date'] = endTimestamp.toString();
     if (status != null) parameters['status'] = status;
     if (page != null) parameters['page'] = page;
@@ -653,7 +698,8 @@ class ByBit {
 
   /// Get asset exchange records.
   /// https://bybit-exchange.github.io/docs/inverse/#t-assetexchangerecords
-  Future<String> getAssetExchangeRecords({String direction, int from, int limit}) {
+  Future<String> getAssetExchangeRecords(
+      {String direction, int from, int limit}) {
     log.i('Get asset exchange records.');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     if (from != null) parameters['from'] = from;
@@ -689,15 +735,22 @@ class ByBit {
   /// Subscribe to the KLines channel. A list of valid [interval] values string
   /// is at: https://bybit-exchange.github.io/docs/inverse/#t-websocketklinev2
   void subscribeToKlines({@required String symbol, @required String interval}) {
-    log.i('Subscribe to KLines with symbol: ' + symbol + ' and interval: ' + interval);
+    log.i('Subscribe to KLines with symbol: ' +
+        symbol +
+        ' and interval: ' +
+        interval);
     websocket.subscribeTo(topic: 'klineV2', symbol: symbol, filter: interval);
   }
 
   /// Fetches the orderbook with a [depth] of '25' or '200' orders per side.
   /// is at: https://bybit-exchange.github.io/docs/inverse/#t-websocketorderbook25
   void subscribeToOrderBook({@required int depth, String symbol = ''}) {
-    log.i('Subscribe to orderbook with depth : ' + depth.toString() + ' for the symbol: ' + symbol);
-    websocket.subscribeTo(topic: 'orderBookL2_' + depth.toString(), symbol: symbol);
+    log.i('Subscribe to orderbook with depth : ' +
+        depth.toString() +
+        ' for the symbol: ' +
+        symbol);
+    websocket.subscribeTo(
+        topic: 'orderBookL2_' + depth.toString(), symbol: symbol);
   }
 
   /// Get real-time trading information.

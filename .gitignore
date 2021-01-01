@@ -10,6 +10,7 @@
 .svn/
 assets/key.json
 check_format.sh
+.vscode/
 
 # IntelliJ related
 *.iml
