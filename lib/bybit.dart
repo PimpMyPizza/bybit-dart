@@ -36,7 +36,6 @@ class ByBit {
       int websocketTimeout = 1000,
       int pingLoopTimer = 30,
       String logLevel = 'WARNING'}) {
-    log = LoggerSingleton();
     if (logLevel == 'ERROR')
       Logger.level = Level.error;
     else if (logLevel == 'WARNING')
@@ -47,6 +46,7 @@ class ByBit {
       Logger.level = Level.debug;
     else
       Logger.level = Level.nothing;
+    log = LoggerSingleton();
     websocket = ByBitWebSocket(
         key: key,
         password: password,

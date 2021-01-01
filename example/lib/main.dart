@@ -47,7 +47,7 @@ class Example extends StatelessWidget {
   Widget build(BuildContext context) {
     // Add a valid key and password if you want to use private topics
     ByBit bybit = ByBit.getInstance(
-        logLevel: 'WARNING',
+        logLevel: 'INFO',
         restUrl: 'https://api.bybit.com',
         restTimeout: 3000,
         websocketUrl: 'wss://stream.bytick.com/realtime',
