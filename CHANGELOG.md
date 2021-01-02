@@ -1,3 +1,9 @@
+## [0.4.0]
+
+* Removed flutter dependency
+* Endpoint tests automation
+* Documentation of all endpoints parameters
+
 ## [0.3.0]
 
 * Enabled Web support

@@ -1,25 +1,102 @@
-import 'dart:convert';
-
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_test/flutter_test.dart';
-
-import 'package:bybit/bybit.dart';
+import 'test_klines_subscription.dart';
+import 'test_ping.dart';
+import 'test_trades_subscription.dart';
+import 'test_orderbook_subscription.dart';
+import 'test_insurance_subscription.dart';
+import 'test_instrument_info_subscription.dart';
+import 'test_position_subscription.dart';
+import 'test_execution_subscription.dart';
+import 'test_order_subscription.dart';
+import 'test_stop_order_subscription.dart';
+import 'test_get_kline.dart';
+import 'test_get_order_book.dart';
+import 'test_get_tickers.dart';
+import 'test_get_trading_records.dart';
+import 'test_get_symbol_info.dart';
+import 'test_get_liquidated_orders.dart';
+import 'test_place_active_order.dart';
+import 'test_get_active_order.dart';
+import 'test_cancel_active_order.dart';
+import 'test_cancel_all_active_orders.dart';
+import 'test_update_active_order.dart';
+import 'test_get_real_time_active_order.dart';
+import 'test_place_conditional_order.dart';
+import 'test_get_conditional_orders.dart';
+import 'test_cancel_conditional_order.dart';
+import 'test_cancel_all_conditional_orders.dart';
+import 'test_update_conditional_order.dart';
+import 'test_get_conditional_order.dart';
+import 'test_get_position.dart';
+import 'test_set_margin.dart';
+import 'test_set_trading_stop.dart';
+import 'test_set_leverage.dart';
+import 'test_get_user_trading_records.dart';
+import 'test_get_user_closed_profit.dart';
+import 'test_get_risk_limit.dart';
+import 'test_set_risk_limit.dart';
+import 'test_get_funding_rate.dart';
+import 'test_get_previous_funding_fee.dart';
+import 'test_get_predicted_funding_rate_and_funding_fee.dart';
+import 'test_get_api_key_info.dart';
+import 'test_get_user_lcp.dart';
+import 'test_get_wallet_balance.dart';
+import 'test_get_wallet_fund_records.dart';
+import 'test_get_withdrawal_records.dart';
+import 'test_get_asset_exchange_records.dart';
+import 'test_get_server_time.dart';
+import 'test_get_announcement.dart';
 
 void main() {
-  test('Test klines subscription', () {
-    ByBit bybit = ByBit();
-    bybit.connect();
-    bybit.subscribeToKlines(symbol: 'BTCUSD', interval: '1');
-    bybit.subscribeToKlines(symbol: 'BTCUSD', interval: 'D');
-    StreamBuilder(
-      stream: bybit.websocket.websocket.stream,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          var json = jsonDecode(snapshot.data);
-          expect((json['data'] != null), true);
-        }
-        return Container();
-      },
-    );
-  });
+  // REST API calls
+  testGetOrderBook();
+  testGetKLine();
+  testGetTickers();
+  testGetTradingRecords();
+  testGetSymbolsInfo();
+  testGetLiquidatedOrders();
+  testPlaceActiveOrder();
+  testGetActiveOrder();
+  testCancelActiveOrder();
+  testCancelAllActiveOrders();
+  testUpdateActiveOrder();
+  testGetRealTimeActiveOrder();
+  testPlaceConditionalOrder();
+  testGetConditionalOrders();
+  testCancelConditionalOrder();
+  testCancelAllConditionalOrders();
+  testUpdateConditionalOrder();
+  testGetConditionalOrder();
+  testGetPosition();
+  testSetMargin();
+  testSetTradingStop();
+  testSetLeverage();
+  testGetUserTradingRecords();
+  testGetUserClosedProfit();
+  testGetRiskLimit();
+  testSetRiskLimit();
+  testGetFundingRate();
+  testGetPreviousFundingFee();
+  testGetPredictedFundingRateAndFundingFee();
+  testGetApiKeyInfo();
+  testGetUserLCP();
+  testGetWalletBalance();
+  testGetWalletFundRecords();
+  testGetWithdrawalRecords();
+  testGetAssetExchangeRecords();
+  testGetServerTime();
+  testGetAnnouncement();
+
+  // public topics to subscribe to
+  /*testPing();
+  testSubscribeToKlines();
+  testSubscribeToOrderBook();
+  testsubscribeToTrades();
+  testSubscribeToInsurance();
+  testSubscribeToInstrumentInfo();
+
+  // private topics
+  testSubscribeToPosition();
+  testSubscribeToExecution();
+  testSubscribeToOrder();
+  testSubscribeToStopOrder();*/
 }

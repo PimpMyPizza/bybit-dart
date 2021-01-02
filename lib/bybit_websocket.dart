@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:bybit/logger.dart';
-import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'package:crypto/crypto.dart';
@@ -27,6 +27,8 @@ class ByBitWebSocket {
   /// For easy debugging
   LoggerSingleton log;
 
+  Timer pingTimer;
+
   /// Connect to the server with a WebSocket. A ping shall be send every
   /// [pingLooTimer] seconds in order to keep the connection alive.
   ByBitWebSocket(
@@ -37,7 +39,7 @@ class ByBitWebSocket {
       int pingLoopTimer = 30}) {
     log = LoggerSingleton();
     if (pingLoopTimer > 0) {
-      Timer.periodic(Duration(seconds: pingLoopTimer), (timer) {
+      pingTimer = Timer.periodic(Duration(seconds: pingLoopTimer), (timer) {
         ping();
       });
     }
@@ -60,6 +62,7 @@ class ByBitWebSocket {
 
   /// Disconnect the WebSocket
   void disconnect() {
+    pingTimer.cancel();
     this.websocket.sink.close(status.goingAway);
   }
 
