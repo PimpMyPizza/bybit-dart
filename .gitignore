@@ -10,7 +10,6 @@
 .svn/
 assets/key.json
 check_format.sh
-.vscode/
 
 # IntelliJ related
 *.iml
@@ -21,7 +20,7 @@ check_format.sh
 # The .vscode folder contains launch configuration and tasks you configure in
 # VS Code which you may wish to be included in version control, so this line
 # is commented out by default.
-#.vscode/
+.vscode/
 
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -32,6 +31,7 @@ check_format.sh
 .pub-cache/
 .pub/
 build/
+pubspec.lock
 
 # Android related
 **/android/**/gradle-wrapper.jar

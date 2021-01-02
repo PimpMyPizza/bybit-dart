@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'package:bybit/logger.dart';
 import 'package:flutter/material.dart';
-import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 
 class ByBitWebSocket {
   /// WebSocket that is used for the bybit communication
-  IOWebSocketChannel websocket;
+  WebSocketChannel websocket;
 
   /// Url to use for the WebSocket connection
   /// See https://bybit-exchange.github.io/docs/inverse/#t-websocket
@@ -54,7 +54,8 @@ class ByBitWebSocket {
         '&signature=' +
         signature;
     log.i('Open WebSocket on: ' + this.url + '?' + param);
-    this.websocket = IOWebSocketChannel.connect(this.url + '?' + param);
+    this.websocket =
+        WebSocketChannel.connect(Uri.parse(this.url + '?' + param));
   }
 
   /// Disconnect the WebSocket

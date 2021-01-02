@@ -1,3 +1,8 @@
+## [0.3.0]
+
+* Enabled Web support
+* Added some doc
+
 ## [0.2.0]
 
 * Adapted formating
