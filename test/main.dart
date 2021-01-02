@@ -87,7 +87,7 @@ void main() {
   testGetAnnouncement();
 
   // public topics to subscribe to
-  /*testPing();
+  testPing();
   testSubscribeToKlines();
   testSubscribeToOrderBook();
   testsubscribeToTrades();
@@ -98,5 +98,5 @@ void main() {
   testSubscribeToPosition();
   testSubscribeToExecution();
   testSubscribeToOrder();
-  testSubscribeToStopOrder();*/
+  testSubscribeToStopOrder();
 }

@@ -15,7 +15,6 @@ void testPlaceActiveOrder() {
         orderType: 'Buy',
         quantity: 10,
         timeInForce: 'what?');
-    print(dataStr);
     Map<String, dynamic> data = asValidJson(dataStr);
     mustExist([data, data['ret_code']]);
     expect(data['ret_code'], 10003);

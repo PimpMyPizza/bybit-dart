@@ -11,7 +11,6 @@ void testGetFundingRate() {
   test('Test ByBit.getFundingRate()', () async {
     String dataStr = await bybit.getFundingRate(symbol: 'BTCUSD');
     Map<String, dynamic> data = asValidJson(dataStr);
-    print(data);
     mustExist([data, data['ret_code']]);
     expect(data['ret_code'], 10017);
   });

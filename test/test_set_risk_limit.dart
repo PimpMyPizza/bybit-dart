@@ -12,7 +12,6 @@ void testSetRiskLimit() {
     String dataStr = await bybit.setRiskLimit(symbol: 'BTCUSD', riskId: 123);
     Map<String, dynamic> data = asValidJson(dataStr);
     mustExist([data, data['ret_code']]);
-    print(data);
     expect(data['ret_code'], 10009);
   });
 
