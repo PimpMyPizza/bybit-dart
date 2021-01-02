@@ -1,4 +1,3 @@
-import 'test_utils.dart';
 import 'package:test/test.dart';
 import 'package:bybit/bybit.dart';
 
@@ -9,9 +8,16 @@ void testGetPosition() {
   });
 
   test('Test ByBit.getPosition()', () async {
-    String dataStr = await bybit.getPosition();
-    Map<String, dynamic> data = asValidJson(dataStr);
-    mustExist([data, data['ret_code']]);
+    var data = await bybit.getPosition();
+
+    if (data == null) {
+      expect(true, false);
+      return;
+    }
+    if (data['ret_code'] == null) {
+      expect(true, false);
+      return;
+    }
     expect(data['ret_code'], 10003);
   });
 

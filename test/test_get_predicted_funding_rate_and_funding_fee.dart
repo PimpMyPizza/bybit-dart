@@ -1,4 +1,3 @@
-import 'test_utils.dart';
 import 'package:test/test.dart';
 import 'package:bybit/bybit.dart';
 
@@ -9,10 +8,17 @@ void testGetPredictedFundingRateAndFundingFee() {
   });
 
   test('Test ByBit.getPredictedFundingRateAndFundingFee()', () async {
-    String dataStr =
+    var data =
         await bybit.getPredictedFundingRateAndFundingFee(symbol: 'BTCUSD');
-    Map<String, dynamic> data = asValidJson(dataStr);
-    mustExist([data, data['ret_code']]);
+
+    if (data == null) {
+      expect(true, false);
+      return;
+    }
+    if (data['ret_code'] == null) {
+      expect(true, false);
+      return;
+    }
     expect(data['ret_code'], 10003);
   });
 

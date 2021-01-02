@@ -8,7 +8,7 @@ import 'dart:convert';
 
 class ByBitWebSocket {
   /// WebSocket that is used for the bybit communication
-  WebSocketChannel websocket;
+  WebSocketChannel _websocket;
 
   /// Url to use for the WebSocket connection
   /// See https://bybit-exchange.github.io/docs/inverse/#t-websocket
@@ -27,7 +27,11 @@ class ByBitWebSocket {
   /// For easy debugging
   LoggerSingleton log;
 
+  /// Time that will ping the websocket server every X seconds.
   Timer pingTimer;
+
+  /// Stream that remaps the websocket stream output to json data.
+  Stream<Map<String, dynamic>> stream;
 
   /// Connect to the server with a WebSocket. A ping shall be send every
   /// [pingLooTimer] seconds in order to keep the connection alive.
@@ -38,6 +42,7 @@ class ByBitWebSocket {
       this.timeout = 1000,
       int pingLoopTimer = 30}) {
     log = LoggerSingleton();
+    stream = _websocket.stream.map((event) => jsonDecode(event));
     if (pingLoopTimer > 0) {
       pingTimer = Timer.periodic(Duration(seconds: pingLoopTimer), (timer) {
         ping();
@@ -47,23 +52,22 @@ class ByBitWebSocket {
 
   /// Open a WebSocket connection to the Bybit API
   void connect() {
-    int timestamp = DateTime.now().millisecondsSinceEpoch + this.timeout;
-    String signature = sign(secret: this.password, timestamp: timestamp);
+    int timestamp = DateTime.now().millisecondsSinceEpoch + timeout;
+    String signature = sign(secret: password, timestamp: timestamp);
     String param = 'api_key=' +
-        this.key +
+        key +
         '&expires=' +
         timestamp.toString() +
         '&signature=' +
         signature;
-    log.i('Open WebSocket on: ' + this.url + '?' + param);
-    this.websocket =
-        WebSocketChannel.connect(Uri.parse(this.url + '?' + param));
+    log.i('Open WebSocket on: ' + url + '?' + param);
+    _websocket = WebSocketChannel.connect(Uri.parse(url + '?' + param));
   }
 
   /// Disconnect the WebSocket
   void disconnect() {
     pingTimer.cancel();
-    this.websocket.sink.close(status.goingAway);
+    _websocket.sink.close(status.goingAway);
   }
 
   /// Generate a signature needed for the WebSocket authentication as defined here:
@@ -83,7 +87,7 @@ class ByBitWebSocket {
     }
     cmd += '}';
     log.d("send command " + cmd);
-    this.websocket.sink.add(cmd);
+    this._websocket.sink.add(cmd);
   }
 
   /// send a subscribtion request to a specific [topic] to Bybit

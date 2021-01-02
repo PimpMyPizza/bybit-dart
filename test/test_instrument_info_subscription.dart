@@ -1,4 +1,3 @@
-import 'test_utils.dart';
 import 'package:test/test.dart';
 import 'package:bybit/bybit.dart';
 
@@ -10,8 +9,15 @@ void testSubscribeToInstrumentInfo() {
 
   test('Test ByBit.subscribeToInstrumentInfo()', () async {
     bybit.subscribeToInstrumentInfo(symbol: 'BTCUSD');
-    var data = await getFirstValue(bybit.websocket.websocket.stream);
-    mustExist([data, data['topic']]);
+    var data = await bybit.websocket.stream.first;
+    if (data == null) {
+      expect(true, false);
+      return;
+    }
+    if (data['topic'] == null) {
+      expect(true, false);
+      return;
+    }
     expect(data['topic'].toString().startsWith('instrument_info'), true);
   });
 

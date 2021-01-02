@@ -1,4 +1,3 @@
-import 'test_utils.dart';
 import 'package:test/test.dart';
 import 'package:bybit/bybit.dart';
 
@@ -9,7 +8,7 @@ void testPlaceConditionalOrder() {
   });
 
   test('Test ByBit.placeConditionalOrder()', () async {
-    String dataStr = await bybit.placeConditionalOrder(
+    var data = await bybit.placeConditionalOrder(
         symbol: 'BTCUSD',
         side: 'Buy',
         orderType: 'Buy',
@@ -18,8 +17,15 @@ void testPlaceConditionalOrder() {
         triggerPrice: '10',
         timeInForce: '10',
         triggerBy: 'dontcare');
-    Map<String, dynamic> data = asValidJson(dataStr);
-    mustExist([data, data['ret_code']]);
+
+    if (data == null) {
+      expect(true, false);
+      return;
+    }
+    if (data['ret_code'] == null) {
+      expect(true, false);
+      return;
+    }
     expect(data['ret_code'], 10003);
   });
 

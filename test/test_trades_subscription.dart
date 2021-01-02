@@ -1,6 +1,5 @@
 import 'package:test/test.dart';
 import 'package:bybit/bybit.dart';
-import 'test_utils.dart';
 
 void testsubscribeToTrades() {
   ByBit bybit = ByBit(key: '', password: '');
@@ -10,16 +9,16 @@ void testsubscribeToTrades() {
 
   test('Test ByBit.subscribeToTrades()', () async {
     bybit.subscribeToTrades();
-    var data = await getFirstValue(bybit.websocket.websocket.stream);
-    mustExist([
-      data,
-      data['success'],
-      data['request']['op'],
-      data['request']['args']
-    ]);
+    var data = await bybit.websocket.stream.first;
+    if (data == null) {
+      expect(true, false);
+      return;
+    }
+    if (data['success'] == null) {
+      expect(true, false);
+      return;
+    }
     expect(data['success'], true);
-    expect(data['request']['op'], 'subscribe');
-    expect(data['request']['args'], ['trade']);
   });
 
   tearDown(() {

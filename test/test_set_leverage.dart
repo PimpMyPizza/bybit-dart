@@ -1,4 +1,3 @@
-import 'test_utils.dart';
 import 'package:test/test.dart';
 import 'package:bybit/bybit.dart';
 
@@ -9,9 +8,16 @@ void testSetLeverage() {
   });
 
   test('Test ByBit.setLeverage()', () async {
-    String dataStr = await bybit.setLeverage(symbol: 'BTCUSD', leverage: 2);
-    Map<String, dynamic> data = asValidJson(dataStr);
-    mustExist([data, data['ret_code']]);
+    var data = await bybit.setLeverage(symbol: 'BTCUSD', leverage: 2);
+
+    if (data == null) {
+      expect(true, false);
+      return;
+    }
+    if (data['ret_code'] == null) {
+      expect(true, false);
+      return;
+    }
     expect(data['ret_code'], 10003);
   });
 

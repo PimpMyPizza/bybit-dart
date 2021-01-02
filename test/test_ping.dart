@@ -1,4 +1,3 @@
-import 'test_utils.dart';
 import 'package:test/test.dart';
 import 'package:bybit/bybit.dart';
 
@@ -10,16 +9,16 @@ void testPing() {
 
   test('Test ByBit.ping()', () async {
     bybit.ping();
-    var data = await getFirstValue(bybit.websocket.websocket.stream);
-    mustExist([
-      data,
-      data['success'],
-      data['ret_msg'],
-      data['request']['op'],
-    ]);
+    var data = await bybit.websocket.stream.first;
+    if (data == null) {
+      expect(true, false);
+      return;
+    }
+    if (data['success'] == null) {
+      expect(true, false);
+      return;
+    }
     expect(data['success'], true);
-    expect(data['ret_msg'], 'pong');
-    expect(data['request']['op'], 'ping');
   });
 
   tearDown(() {
