@@ -2,7 +2,7 @@ library bybit;
 
 import 'package:bybit/bybit_rest.dart';
 import 'package:bybit/bybit_websocket.dart';
-import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
 import 'package:bybit/logger.dart';
 import 'package:logger/logger.dart';
 

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
-import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
 import 'package:sortedmap/sortedmap.dart';
 import 'package:bybit/logger.dart';
 import 'package:http/http.dart' as http;

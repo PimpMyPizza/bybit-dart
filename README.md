@@ -19,7 +19,7 @@
 
 # ByBit
 
-ByBit is a [Dart](https://dart.dev/) package for a communication with the [bybit](https://www.bybit.com/) exchange platform [API](https://bybit-exchange.github.io/docs/inverse/#t-introduction)
+ByBit is a [Dart](https://dart.dev/) library for an easy communication with the [bybit](https://www.bybit.com/) exchange platform [API](https://bybit-exchange.github.io/docs/inverse/#t-introduction). This package allows to make simple API call over simple HTTP-requests (REST) or with WebSocket subscriptions.
 
 ## How to use
 
@@ -42,8 +42,9 @@ ByBit bybit = ByBit.getInstance(
         restTimeout: 3000,
         websocketUrl: 'wss://stream.bytick.com/realtime',
         websocketTimeout: 2000);
-// otherBybitInstance will have the same parameters as bybit. Doesn't matter what parameters you give here.
-ByBit otherBybitInstance = ByBit.getInstance(key: 'OtHeRkEyLoLoLoL', restTimeout: 1000);
+// bybit2lol.getInstance(...) doesn't change the key and timeout, since it was
+// Invoked after the first call of getInstance(...)
+ByBit bybit2lol = ByBit.getInstance(key: 'OtHeRkEyLoLoLoL', restTimeout: 1000);
 ```
 
 ### Connect
@@ -89,8 +90,8 @@ FutureBuilder(
 
 ## Example
 
-See [the file example/lib/main.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main.dart) for a concrete example of WebSocket (stream) and Future (http) communication
+See [the file example/lib/main.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main.dart) for a concrete example of WebSocket (stream) and Future (http) communication. [The file example/lib/main_flutter.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main_flutter.dart) shows an example using flutter Widgets.
 
 ## List of functions
 
-See [the doc](https://pub.dev/documentation/bybit/latest/bybit/ByBit-class.html) for the latest avaiable function
+See [the documentation](https://pub.dev/documentation/bybit/latest/bybit/ByBit-class.html) for the latest avaiable functions. The general rule is that the HTTP requests (REST) returns a `Future<String>`, and the String can actually be parsed as a JSON object with `jsonDecode(...)` (in later releases, the output will be better formated). The data coming from the WebSocket can be read with a StreamBuilder for example (as shown in the [example file](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main.dart)).
