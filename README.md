@@ -21,11 +21,6 @@
 
 ByBit is a [Dart](https://dart.dev/) package for a communication with the [bybit](https://www.bybit.com/) exchange platform [API](https://bybit-exchange.github.io/docs/inverse/#t-introduction)
 
-## Table of content
-- [How to use](#How-to-use)
-- [Example](#Example)
-- [List of functions](#List-of-functions)
-
 ## How to use
 
 ### Import the library

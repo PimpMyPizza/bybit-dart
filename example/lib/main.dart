@@ -28,7 +28,8 @@ class ExampleByBitREST extends StatelessWidget {
   Widget build(BuildContext context) {
     ByBit bybit = ByBit.getInstance();
     return FutureBuilder(
-      future: bybit.getKLine(symbol: 'BTCUSD', from: 1581231260, interval: 'D'),
+      //future: bybit.getKLine(symbol: 'BTCUSD', from: 1581231260, interval: 'D'),
+      future: bybit.getTickers(),
       builder: (context, bybitResponse) {
         // Handle the bybit response here
         if (bybitResponse.hasData) {
