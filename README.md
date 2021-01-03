@@ -81,4 +81,4 @@ See [the file main.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/exa
 
 ## List of functions
 
-See [the documentation](https://pub.dev/documentation/bybit/latest/bybit/ByBit-class.html) for the latest avaiable functions. All function return objects of JSON type aka. `Map<String, dynamic>`.
+See [the documentation](https://pub.dev/documentation/bybit/latest/bybit/ByBit-class.html) for the latest avaiable functions.
