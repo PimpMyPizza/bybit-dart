@@ -8,7 +8,7 @@ import 'dart:convert';
 
 class ByBitWebSocket {
   /// WebSocket that is used for the bybit communication
-  WebSocketChannel _websocket;
+  WebSocketChannel websocket;
 
   /// Url to use for the WebSocket connection
   /// See https://bybit-exchange.github.io/docs/inverse/#t-websocket
@@ -42,7 +42,6 @@ class ByBitWebSocket {
       this.timeout = 1000,
       int pingLoopTimer = 30}) {
     log = LoggerSingleton();
-    stream = _websocket.stream.map((event) => jsonDecode(event));
     if (pingLoopTimer > 0) {
       pingTimer = Timer.periodic(Duration(seconds: pingLoopTimer), (timer) {
         ping();
@@ -61,13 +60,14 @@ class ByBitWebSocket {
         '&signature=' +
         signature;
     log.i('Open WebSocket on: ' + url + '?' + param);
-    _websocket = WebSocketChannel.connect(Uri.parse(url + '?' + param));
+    websocket = WebSocketChannel.connect(Uri.parse(url + '?' + param));
+    stream = websocket.stream.map((event) => jsonDecode(event));
   }
 
   /// Disconnect the WebSocket
   void disconnect() {
     pingTimer.cancel();
-    _websocket.sink.close(status.goingAway);
+    websocket.sink.close(status.goingAway);
   }
 
   /// Generate a signature needed for the WebSocket authentication as defined here:
@@ -87,7 +87,7 @@ class ByBitWebSocket {
     }
     cmd += '}';
     log.d("send command " + cmd);
-    this._websocket.sink.add(cmd);
+    websocket.sink.add(cmd);
   }
 
   /// send a subscribtion request to a specific [topic] to Bybit

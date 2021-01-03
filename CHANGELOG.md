@@ -1,3 +1,9 @@
+## [0.5.0]
+
+* API responses are now automatically casted to JSON types (MAP<String, dynamic>)
+* ByBit object is no more a singleton.
+* More doc
+
 ## [0.4.0]
 
 * Removed flutter dependency
