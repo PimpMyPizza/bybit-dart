@@ -27,7 +27,11 @@ class ByBitWebSocket {
   /// For easy debugging
   LoggerSingleton log;
 
+  /// Time that will ping the websocket server every X seconds.
   Timer pingTimer;
+
+  /// Stream that remaps the websocket stream output to json data.
+  Stream<Map<String, dynamic>> stream;
 
   /// Connect to the server with a WebSocket. A ping shall be send every
   /// [pingLooTimer] seconds in order to keep the connection alive.
@@ -47,23 +51,23 @@ class ByBitWebSocket {
 
   /// Open a WebSocket connection to the Bybit API
   void connect() {
-    int timestamp = DateTime.now().millisecondsSinceEpoch + this.timeout;
-    String signature = sign(secret: this.password, timestamp: timestamp);
+    int timestamp = DateTime.now().millisecondsSinceEpoch + timeout;
+    String signature = sign(secret: password, timestamp: timestamp);
     String param = 'api_key=' +
-        this.key +
+        key +
         '&expires=' +
         timestamp.toString() +
         '&signature=' +
         signature;
-    log.i('Open WebSocket on: ' + this.url + '?' + param);
-    this.websocket =
-        WebSocketChannel.connect(Uri.parse(this.url + '?' + param));
+    log.i('Open WebSocket on: ' + url + '?' + param);
+    websocket = WebSocketChannel.connect(Uri.parse(url + '?' + param));
+    stream = websocket.stream.map((event) => jsonDecode(event));
   }
 
   /// Disconnect the WebSocket
   void disconnect() {
     pingTimer.cancel();
-    this.websocket.sink.close(status.goingAway);
+    websocket.sink.close(status.goingAway);
   }
 
   /// Generate a signature needed for the WebSocket authentication as defined here:
@@ -83,7 +87,7 @@ class ByBitWebSocket {
     }
     cmd += '}';
     log.d("send command " + cmd);
-    this.websocket.sink.add(cmd);
+    websocket.sink.add(cmd);
   }
 
   /// send a subscribtion request to a specific [topic] to Bybit

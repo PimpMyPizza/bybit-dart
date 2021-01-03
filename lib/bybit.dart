@@ -20,8 +20,6 @@ class ByBit {
   /// For easy debugging
   LoggerSingleton log;
 
-  static ByBit _instance;
-
   /// The constructor use default parameters without api-key.
   /// If you want to use all endpoints, you must provite a valid
   /// [key] and [password]. Go to https://www.bybit.com/app/user/api-management
@@ -57,33 +55,6 @@ class ByBit {
         key: key, password: password, url: restUrl, timeout: restTimeout);
   }
 
-  /// Get an instance of ByBit. Note that the parameters are only read the first time
-  /// that this function is called. Further calls to getInstance doesn't take the
-  /// parameters into account.
-  static ByBit getInstance(
-      {String key = '',
-      String password = '',
-      String restUrl = 'https://api.bybit.com',
-      int restTimeout = 3000,
-      String websocketUrl = 'wss://stream.bybit.com/realtime',
-      int websocketTimeout = 1000,
-      int pingLoopTimer = 30,
-      String logLevel = 'DEBUG'}) {
-    if (_instance == null) {
-      _instance = ByBit(
-          key: key,
-          password: password,
-          restTimeout: restTimeout,
-          restUrl: restUrl,
-          websocketTimeout: websocketTimeout,
-          websocketUrl: websocketUrl,
-          logLevel: logLevel,
-          pingLoopTimer: pingLoopTimer);
-      return _instance;
-    }
-    return _instance;
-  }
-
   /// Connect to the WebSocket server and/or the REST API server
   void connect({bool toWebSocket = true, bool toRestApi = true}) {
     log.i('Connect to Bybit.');
@@ -100,7 +71,7 @@ class ByBit {
 
   /// Get the orderbook.
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-orderbook
-  Future<String> getOrderBook({@required String symbol}) async {
+  Future<Map<String, dynamic>> getOrderBook({@required String symbol}) async {
     log.i('Get order book');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     parameters['symbol'] = symbol;
@@ -109,7 +80,7 @@ class ByBit {
   }
 
   /// Get kline. https://bybit-exchange.github.io/docs/inverse/?console#t-querykline
-  Future<String> getKLine(
+  Future<Map<String, dynamic>> getKLine(
       {@required String symbol,
       @required String interval,
       @required int from,
@@ -126,7 +97,7 @@ class ByBit {
 
   /// Get the latest information for symbol.
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-latestsymbolinfo
-  Future<String> getTickers({String symbol}) {
+  Future<Map<String, dynamic>> getTickers({String symbol}) {
     log.i('Get tickers');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     if (symbol != null) parameters['symbol'] = symbol;
@@ -135,8 +106,12 @@ class ByBit {
   }
 
   /// Get recent trades.
+  ///
+  /// Returns the last trades from a trade id [from] with a limit of [limit]
+  /// trades. If no [from] value is given, the latest [limit] trades will be
+  /// returned (default [limit]: 500, max: 1000)
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-publictradingrecords
-  Future<String> getTradingRecords(
+  Future<Map<String, dynamic>> getTradingRecords(
       {@required String symbol, int from, int limit}) {
     log.i('Get trading records');
     Map<String, dynamic> parameters = Map<String, dynamic>();
@@ -149,16 +124,20 @@ class ByBit {
         parameters: parameters);
   }
 
-  /// Get symbol info.
+  /// Get the information for all symbols.
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-querysymbol
-  Future<String> getSymbolsInfo() {
+  Future<Map<String, dynamic>> getSymbolsInfo() {
     log.i('Get symbols information');
     return rest.request(path: '/v2/public/symbols', type: 'GET');
   }
 
-  /// Retrieve the liquidated orders, The query range is the last seven days of data.
+  /// Retrieve the liquidated orders.
+  ///
+  /// The query range is the last seven days of data. You can pass the [startTime]
+  /// and [endTime] timestamps (in milliseconds) or a trade-id ([from]) and/or
+  /// a [limit] (max 1000, default 500).
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-querysymbol
-  Future<String> getLiquidatedOrders(
+  Future<Map<String, dynamic>> getLiquidatedOrders(
       {@required String symbol,
       int from,
       int limit,
@@ -177,7 +156,7 @@ class ByBit {
 
   /// Place active order
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-placeactive
-  Future<String> placeActiveOrder(
+  Future<Map<String, dynamic>> placeActiveOrder(
       {@required String symbol,
       @required String side,
       @required String orderType,
@@ -211,7 +190,7 @@ class ByBit {
 
   /// Get active order
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-placeactive
-  Future<String> getActiveOrder(
+  Future<Map<String, dynamic>> getActiveOrder(
       {@required String symbol,
       String orderStatus,
       String direction,
@@ -233,7 +212,7 @@ class ByBit {
 
   /// Cancel active order. Note that either orderId or orderLinkId are required
   /// https://bybit-exchange.github.io/docs/inverse/#t-cancelactive
-  Future<String> cancelActiveOrder(
+  Future<Map<String, dynamic>> cancelActiveOrder(
       {@required String symbol, String orderId, String orderLinkId}) {
     log.i('Cancel active order');
     Map<String, dynamic> parameters = Map<String, dynamic>();
@@ -250,7 +229,8 @@ class ByBit {
   /// Cancel all active orders that are unfilled or partially filled. Fully
   /// filled orders cannot be cancelled.
   /// https://bybit-exchange.github.io/docs/inverse/#t-cancelallactive
-  Future<String> cancelAllActiveOrders({@required String symbol}) {
+  Future<Map<String, dynamic>> cancelAllActiveOrders(
+      {@required String symbol}) {
     log.i('Cancel all active orders');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     parameters['symbol'] = symbol;
@@ -263,7 +243,7 @@ class ByBit {
 
   /// Replace order can modify/amend your active orders.
   /// https://bybit-exchange.github.io/docs/inverse/#t-replaceactive
-  Future<String> updateActiveOrder(
+  Future<Map<String, dynamic>> updateActiveOrder(
       {@required String symbol,
       String orderId,
       String orderLinkId,
@@ -287,7 +267,7 @@ class ByBit {
 
   /// Query real-time active order information.
   /// https://bybit-exchange.github.io/docs/inverse/#t-queryactive
-  Future<String> getRealTimeActiveOrder(
+  Future<Map<String, dynamic>> getRealTimeActiveOrder(
       {@required String symbol, String orderId, String orderLinkId}) {
     log.i('Query real-time active order information');
     Map<String, dynamic> parameters = Map<String, dynamic>();
@@ -303,7 +283,7 @@ class ByBit {
 
   /// Place a market price conditional order
   /// https://bybit-exchange.github.io/docs/inverse/#t-placecond
-  Future<String> placeConditionalOrder(
+  Future<Map<String, dynamic>> placeConditionalOrder(
       {@required String symbol,
       @required String side,
       @required String orderType,
@@ -337,7 +317,7 @@ class ByBit {
 
   /// Get user conditional order list.
   /// https://bybit-exchange.github.io/docs/inverse/#t-getcond
-  Future<String> getConditionalOrders(
+  Future<Map<String, dynamic>> getConditionalOrders(
       {@required String symbol,
       String stopOrderStatus,
       String direction,
@@ -360,7 +340,7 @@ class ByBit {
 
   /// Cancel untriggered conditional order
   /// https://bybit-exchange.github.io/docs/inverse/#t-cancelcond
-  Future<String> cancelConditionalOrder(
+  Future<Map<String, dynamic>> cancelConditionalOrder(
       {@required String symbol, String orderId, String orderLinkId}) {
     log.i('Cancel conditional order');
     Map<String, dynamic> parameters = Map<String, dynamic>();
@@ -376,7 +356,8 @@ class ByBit {
 
   /// Cancel all untriggered conditional orders
   /// https://bybit-exchange.github.io/docs/inverse/#t-cancelallcond
-  Future<String> cancelAllConditionalOrders({@required String symbol}) {
+  Future<Map<String, dynamic>> cancelAllConditionalOrders(
+      {@required String symbol}) {
     log.i('Cancel all conditional orders');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     parameters['symbol'] = symbol;
@@ -389,7 +370,7 @@ class ByBit {
 
   /// Update conditional order
   /// https://bybit-exchange.github.io/docs/inverse/#t-replacecond
-  Future<String> updateConditionalOrder(
+  Future<Map<String, dynamic>> updateConditionalOrder(
       {@required String symbol,
       String stopOrderId,
       String orderLinkId,
@@ -414,7 +395,7 @@ class ByBit {
 
   /// Query conditional order
   /// https://bybit-exchange.github.io/docs/inverse/#t-querycond
-  Future<String> getConditionalOrder(
+  Future<Map<String, dynamic>> getConditionalOrder(
       {@required String symbol, String stopOrderId, String orderLinkId}) {
     log.i('Query conditional order');
     Map<String, dynamic> parameters = Map<String, dynamic>();
@@ -430,7 +411,7 @@ class ByBit {
 
   /// Get user position list
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-myposition
-  Future<String> getPosition({String symbol}) async {
+  Future<Map<String, dynamic>> getPosition({String symbol}) async {
     log.i('Get user position list.');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     if (symbol != null) parameters['symbol'] = symbol;
@@ -443,7 +424,8 @@ class ByBit {
 
   /// Update margin
   /// https://bybit-exchange.github.io/docs/inverse/#t-changemargin
-  Future<String> setMargin({@required String symbol, @required double margin}) {
+  Future<Map<String, dynamic>> setMargin(
+      {@required String symbol, @required double margin}) {
     log.i('Update margin');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     parameters['symbol'] = symbol;
@@ -457,7 +439,7 @@ class ByBit {
 
   /// Set trading-stop
   /// https://bybit-exchange.github.io/docs/inverse/#t-tradingstop
-  Future<String> setTradingStop(
+  Future<Map<String, dynamic>> setTradingStop(
       {@required String symbol,
       double takeProfit,
       double stopLoss,
@@ -484,7 +466,7 @@ class ByBit {
 
   /// Set leverage
   /// https://bybit-exchange.github.io/docs/inverse/#t-setleverage
-  Future<String> setLeverage(
+  Future<Map<String, dynamic>> setLeverage(
       {@required String symbol, @required double leverage}) {
     log.i('Set leverage.');
     Map<String, dynamic> parameters = Map<String, dynamic>();
@@ -499,7 +481,7 @@ class ByBit {
 
   /// Get user's trading records.
   /// https://bybit-exchange.github.io/docs/inverse/#t-usertraderecords
-  Future<String> getUserTradingRecords(
+  Future<Map<String, dynamic>> getUserTradingRecords(
       {@required String symbol,
       String orderId,
       int startTime,
@@ -523,7 +505,7 @@ class ByBit {
 
   /// Get user's closed profit and loss records.
   /// https://bybit-exchange.github.io/docs/inverse/#t-closedprofitandloss
-  Future<String> getUserClosedProfit(
+  Future<Map<String, dynamic>> getUserClosedProfit(
       {@required String symbol,
       int startTime,
       int endTime,
@@ -547,7 +529,7 @@ class ByBit {
 
   /// Get risk limit
   /// https://bybit-exchange.github.io/docs/inverse/#t-risklimit
-  Future<String> getRiskLimit() {
+  Future<Map<String, dynamic>> getRiskLimit() {
     log.i('Get risk limit.');
     return rest.request(
         path: '/open-api/wallet/risk-limit/list',
@@ -557,7 +539,8 @@ class ByBit {
 
   /// Set risk limit
   /// https://bybit-exchange.github.io/docs/inverse/#t-setrisklimit
-  Future<String> setRiskLimit({@required String symbol, @required int riskId}) {
+  Future<Map<String, dynamic>> setRiskLimit(
+      {@required String symbol, @required int riskId}) {
     log.i('Set risk limit');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     parameters['symbol'] = symbol;
@@ -571,7 +554,7 @@ class ByBit {
 
   /// Get the last funding rate
   /// https://bybit-exchange.github.io/docs/inverse/#t-fundingrate
-  Future<String> getFundingRate({@required String symbol}) {
+  Future<Map<String, dynamic>> getFundingRate({@required String symbol}) {
     log.i('Get funding rate');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     parameters['symbol'] = symbol;
@@ -584,7 +567,8 @@ class ByBit {
 
   /// Get previous funding fee
   /// https://bybit-exchange.github.io/docs/inverse/#t-mylastfundingfee
-  Future<String> getPreviousFundingFee({@required String symbol}) {
+  Future<Map<String, dynamic>> getPreviousFundingFee(
+      {@required String symbol}) {
     log.i('Get previous funding fee.');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     parameters['symbol'] = symbol;
@@ -597,7 +581,7 @@ class ByBit {
 
   /// Get predicted funding rate and my funding fee.
   /// https://bybit-exchange.github.io/docs/inverse/#t-predictedfunding
-  Future<String> getPredictedFundingRateAndFundingFee(
+  Future<Map<String, dynamic>> getPredictedFundingRateAndFundingFee(
       {@required String symbol}) {
     log.i('Get predicted funding rate and funding fee.');
     Map<String, dynamic> parameters = Map<String, dynamic>();
@@ -611,7 +595,7 @@ class ByBit {
 
   /// Get user's API key information.
   /// https://bybit-exchange.github.io/docs/inverse/#t-key
-  Future<String> getApiKeyInfo() {
+  Future<Map<String, dynamic>> getApiKeyInfo() {
     log.i('Get user API key information.');
     return rest.request(
         path: '/v2/private/account/api-key',
@@ -621,7 +605,7 @@ class ByBit {
 
   /// Get user's LCP (data refreshes once an hour).
   /// https://bybit-exchange.github.io/docs/inverse/#t-lcp
-  Future<String> getUserLCP({@required String symbol}) {
+  Future<Map<String, dynamic>> getUserLCP({@required String symbol}) {
     log.i('Get user LCP');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     parameters['symbol'] = symbol;
@@ -634,7 +618,7 @@ class ByBit {
 
   /// Get wallet balance
   /// https://bybit-exchange.github.io/docs/inverse/#t-wallet
-  Future<String> getWalletBalance({@required String currency}) {
+  Future<Map<String, dynamic>> getWalletBalance({@required String currency}) {
     log.i('Get wallet balance information.');
     Map<String, dynamic> parameters = Map<String, dynamic>();
     parameters['coin'] = currency;
@@ -647,7 +631,7 @@ class ByBit {
 
   /// Get wallet fund records.
   /// https://bybit-exchange.github.io/docs/inverse/#t-walletrecords
-  Future<String> getWalletFundRecords(
+  Future<Map<String, dynamic>> getWalletFundRecords(
       {String currency,
       int startTimestamp,
       int endTimestamp,
@@ -673,7 +657,7 @@ class ByBit {
 
   /// Get withdrawal records.
   /// https://bybit-exchange.github.io/docs/inverse/#t-withdrawrecords
-  Future<String> getWithdrawalRecords(
+  Future<Map<String, dynamic>> getWithdrawalRecords(
       {String currency,
       int startTimestamp,
       int endTimestamp,
@@ -698,7 +682,7 @@ class ByBit {
 
   /// Get asset exchange records.
   /// https://bybit-exchange.github.io/docs/inverse/#t-assetexchangerecords
-  Future<String> getAssetExchangeRecords(
+  Future<Map<String, dynamic>> getAssetExchangeRecords(
       {String direction, int from, int limit}) {
     log.i('Get asset exchange records.');
     Map<String, dynamic> parameters = Map<String, dynamic>();
@@ -714,14 +698,14 @@ class ByBit {
 
   /// Get the server time (used for synchronization purposes for example)
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-servertime
-  Future<String> getServerTime() async {
+  Future<Map<String, dynamic>> getServerTime() async {
     log.i('Get server time');
     return rest.request(path: '/v2/public/time', type: 'GET');
   }
 
   /// Get Bybit OpenAPI announcements in the last 30 days in reverse order.
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-announcement
-  Future<String> getAnnouncement() async {
+  Future<Map<String, dynamic>> getAnnouncement() async {
     log.i('Get annoucements');
     return rest.request(path: '/v2/public/announcement', type: 'GET');
   }

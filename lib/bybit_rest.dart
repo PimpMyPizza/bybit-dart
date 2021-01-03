@@ -62,7 +62,7 @@ class ByBitRest {
   }
 
   /// Send command to Bybit
-  Future<String> request(
+  Future<Map<String, dynamic>> request(
       {@required String path,
       Map<String, dynamic> parameters,
       bool withAuthentication = false,
@@ -71,19 +71,19 @@ class ByBitRest {
 
     if (parameters != null) {
       /// Keep the parameters sorted alphabetically for valid requests
-      parameters.forEach((key, value) {
-        log.d('Parameter ' + key + ': ' + value.toString());
-        map[key] = value;
+      parameters.forEach((id, value) {
+        log.d('Parameter ' + id + ': ' + value.toString());
+        map[id] = value;
       });
     }
 
     String params = '';
     if (withAuthentication) {
-      map['api_key'] = this.key;
+      map['api_key'] = key;
       int timestamp = DateTime.now().millisecondsSinceEpoch;
       map['timestamp'] = timestamp;
-      map['recv_window'] = this.timeout;
-      String signature = sign(secret: this.password, query: map);
+      map['recv_window'] = timeout;
+      String signature = sign(secret: password, query: map);
       map['sign'] = signature;
     }
 
@@ -91,7 +91,7 @@ class ByBitRest {
     Map<String, String> header = Map<String, String>();
     header['Content-Type'] = 'application/json; charset=utf-8';
     if (type == 'POST') {
-      String url = this.url + path;
+      String finalUrl = url + path;
       String query = '{';
       map.forEach((key, value) {
         query += '"$key":';
@@ -106,27 +106,27 @@ class ByBitRest {
       // replace last ',' in query string
       if (map.isNotEmpty) query = query.substring(0, query.length - 1);
       query += '}';
-      log.d('POST ' + url + ' ' + header.toString() + ' ' + query);
-      response = await http.post(url, headers: header, body: query);
+      log.d('POST ' + finalUrl + ' ' + header.toString() + ' ' + query);
+      response = await http.post(finalUrl, headers: header, body: query);
     } else if (type == 'GET') {
       header['Content-Type'] = 'application/json; charset=utf-8';
       if (map.isNotEmpty) params = '?';
-      map.forEach((key, value) {
-        params = params + key + '=' + value.toString() + '&';
+      map.forEach((id, value) {
+        params = params + id + '=' + value.toString() + '&';
       });
       // remove last '&' from string
       if (map.isNotEmpty) params = params.substring(0, params.length - 1);
-      String url = this.url + path + params;
-      log.d('GET ' + url);
-      response = await http.get(url, headers: header);
+      String finalUrl = url + path + params;
+      log.d('GET ' + finalUrl);
+      response = await http.get(finalUrl, headers: header);
     } else {
       log.e('Request type ' + type + ' is not supported');
-      return '';
+      return jsonDecode('');
     }
 
     if (response.statusCode != 200) {
       log.e('HTTP response status code: ' + response.statusCode.toString());
     }
-    return response.body;
+    return jsonDecode(response.body);
   }
 }

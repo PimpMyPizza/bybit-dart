@@ -19,22 +19,16 @@
 
 # ByBit
 
-ByBit is a [Dart](https://dart.dev/) library for an easy communication with the [bybit](https://www.bybit.com/) exchange platform [API](https://bybit-exchange.github.io/docs/inverse/#t-introduction). This package allows to make simple API call over simple HTTP-requests (REST) or with WebSocket subscriptions.
+ByBit is a [Dart](https://dart.dev/) library for an easy communication with the [bybit](https://www.bybit.com/) exchange platform [API](https://bybit-exchange.github.io/docs/inverse/#t-introduction). This package allows to make simple REST API calls or to subscribe to several WebSockets channels topics.
 
 ## How to use
 
-### Import the library
-
-``` Dart
-import 'package:bybit/bybit.dart';
-```
-
 ### Create a ByBit instance
 
-Use the `getInstance` function to create an instance of ByBit. Note that the first parameters that you give to the function can't be changed after the first call of getInstance
+Note that all the parameters are optional, but you need a valid key and password to access private topics from bybit. You can create your own api-key [on the bybit website](https://www.bybit.com/app/user/api-management)
 
 ``` Dart
-ByBit bybit = ByBit.getInstance(
+ByBit bybit = ByBit(
         key: 'yOuRsUpErKey',
         password: 'yOuRsUpErPaSsWoRd',
         logLevel: 'INFO',
@@ -42,23 +36,16 @@ ByBit bybit = ByBit.getInstance(
         restTimeout: 3000,
         websocketUrl: 'wss://stream.bytick.com/realtime',
         websocketTimeout: 2000);
-// bybit2lol.getInstance(...) doesn't change the key and timeout, since it was
-// Invoked after the first call of getInstance(...)
-ByBit bybit2lol = ByBit.getInstance(key: 'OtHeRkEyLoLoLoL', restTimeout: 1000);
 ```
 
-### Connect
+### Connect to the server
 
-If you want to use WebSocket streams. If you just want to make REST API calls, no need to connect
 ``` Dart
 bybit.connect();
 ```
 
-### Subscribe to topics and read stream if you want
+### Subscribe to topics and read the websocket stream...
 
-Note that some topics are public and doesn't require a valid api-key and password. If you only want to use public topics, you don't need to pass the `key` and `password` to the `ByBit.getInstance(...)` function.
-
-Note also the `websocket.websocket`
 ``` Dart
 // ...
 bybit.subscribeToKlines(symbol: 'ETHUSD', interval: '1');
@@ -66,7 +53,7 @@ bybit.subscribeToKlines(symbol: 'BTCUSD', interval: 'D');
 bybit.subscribeToOrderBook(depth: 25);
 // ...
 StreamBuilder(
-    stream: bybit.websocket.websocket.stream,
+    stream: bybit.websocket.stream,
     builder: (context, bybitResponse) {
           print('From WebSocket: ' + bybitResponse.data.toString());
           //...
@@ -75,7 +62,7 @@ StreamBuilder(
 //...
 ```
 
-### Make some HTTP request if you want
+### ... and/or make some REST API calls
 
 ``` Dart
 // ...
@@ -90,8 +77,8 @@ FutureBuilder(
 
 ## Example
 
-See [the file example/lib/main.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main.dart) for a concrete example of WebSocket (stream) and Future (http) communication. [The file example/lib/main_flutter.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main_flutter.dart) shows an example using flutter Widgets.
+See [the file main.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main.dart) in the `example/lib/` directory for a simple Dart example. Also, the files [main_flutter_stream.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main_flutter_future.dart) and [main_flutter_future.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main_flutter_future.dart) show examples using `FutureBuilder` and `StreamBuilder`.
 
 ## List of functions
 
-See [the documentation](https://pub.dev/documentation/bybit/latest/bybit/ByBit-class.html) for the latest avaiable functions. The general rule is that the HTTP requests (REST) returns a `Future<String>`, and the String can actually be parsed as a JSON object with `jsonDecode(...)` (in later releases, the output will be better formated). The data coming from the WebSocket can be read with a StreamBuilder for example (as shown in the [example file](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main.dart)).
+See [the documentation](https://pub.dev/documentation/bybit/latest/bybit/ByBit-class.html) for the latest avaiable functions. All function return objects of JSON type aka. `Map<String, dynamic>`.
