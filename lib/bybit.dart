@@ -106,6 +106,10 @@ class ByBit {
   }
 
   /// Get recent trades.
+  ///
+  /// Returns the last trades from a trade id [from] with a limit of [limit]
+  /// trades. If no [from] value is given, the latest [limit] trades will be
+  /// returned (default [limit]: 500, max: 1000)
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-publictradingrecords
   Future<Map<String, dynamic>> getTradingRecords(
       {@required String symbol, int from, int limit}) {
@@ -120,14 +124,18 @@ class ByBit {
         parameters: parameters);
   }
 
-  /// Get symbol info.
+  /// Get the information for all symbols.
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-querysymbol
   Future<Map<String, dynamic>> getSymbolsInfo() {
     log.i('Get symbols information');
     return rest.request(path: '/v2/public/symbols', type: 'GET');
   }
 
-  /// Retrieve the liquidated orders, The query range is the last seven days of data.
+  /// Retrieve the liquidated orders.
+  ///
+  /// The query range is the last seven days of data. You can pass the [startTime]
+  /// and [endTime] timestamps (in milliseconds) or a trade-id ([from]) and/or
+  /// a [limit] (max 1000, default 500).
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-querysymbol
   Future<Map<String, dynamic>> getLiquidatedOrders(
       {@required String symbol,

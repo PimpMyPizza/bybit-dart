@@ -23,12 +23,6 @@ ByBit is a [Dart](https://dart.dev/) library for an easy communication with the 
 
 ## How to use
 
-### Import the library
-
-``` Dart
-import 'package:bybit/bybit.dart';
-```
-
 ### Create a ByBit instance
 
 Note that all the parameters are optional, but you need a valid key and password to access private topics from bybit. You can create your own api-key [on the bybit website](https://www.bybit.com/app/user/api-management);
@@ -44,14 +38,13 @@ ByBit bybit = ByBit(
         websocketTimeout: 2000);
 ```
 
-### Connect
+### Connect to the server
 
-If you want to use WebSocket streams. If you just want to make REST API calls, no need to connect
 ``` Dart
 bybit.connect();
 ```
 
-### Subscribe to topics and read stream if you want
+### Subscribe to topics and read stream...
 
 ``` Dart
 // ...
@@ -69,7 +62,7 @@ StreamBuilder(
 //...
 ```
 
-### Make some HTTP request if you want
+### ... and/or make some REST API calls
 
 ``` Dart
 // ...
@@ -88,4 +81,4 @@ See [the file example/lib/main.dart](https://github.com/PimpMyPizza/bybit-dart/b
 
 ## List of functions
 
-See [the documentation](https://pub.dev/documentation/bybit/latest/bybit/ByBit-class.html) for the latest avaiable functions. All function return objects of JSON type (`Map<String, dynamic>`).
+See [the documentation](https://pub.dev/documentation/bybit/latest/bybit/ByBit-class.html) for the latest avaiable functions. All function return objects of JSON type aka. `Map<String, dynamic>`.
