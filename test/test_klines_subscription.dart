@@ -18,16 +18,7 @@ void testSubscribeToKlines() {
       expect(true, false);
       return;
     }
-    if (data['request'] == null) {
-      expect(true, false);
-      return;
-    }
-    if (data['request']['op'] == null) {
-      expect(true, false);
-      return;
-    }
     expect(data['success'], true);
-    expect(data['request']['op'], 'subscribe');
   });
 
   tearDown(() {
