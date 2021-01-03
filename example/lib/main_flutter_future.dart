@@ -5,7 +5,7 @@ import 'package:bybit/bybit.dart';
 class Example extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    ByBit bybit = ByBit();
+    var bybit = ByBit();
     return FutureBuilder(
       //future: bybit.getKLine(symbol: 'BTCUSD', from: 1581231260, interval: 'D'),
       future: bybit.getTickers(),

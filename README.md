@@ -28,7 +28,7 @@ ByBit is a [Dart](https://dart.dev/) library for an easy communication with the 
 Note that all the parameters are optional, but you need a valid key and password to access private topics from bybit. You can create your own api-key [on the bybit website](https://www.bybit.com/app/user/api-management)
 
 ``` Dart
-ByBit bybit = ByBit(
+var bybit = ByBit(
         key: 'yOuRsUpErKey',
         password: 'yOuRsUpErPaSsWoRd',
         logLevel: 'INFO',

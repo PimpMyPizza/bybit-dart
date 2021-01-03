@@ -31,7 +31,7 @@ class ByBitWebSocket {
   Timer pingTimer;
 
   /// Stream that remaps the websocket stream output to json data.
-  Stream<Map<String, dynamic>> stream;
+  Stream<dynamic> stream;
 
   /// Connect to the server with a WebSocket. A ping shall be send every
   /// [pingLooTimer] seconds in order to keep the connection alive.
@@ -51,9 +51,9 @@ class ByBitWebSocket {
 
   /// Open a WebSocket connection to the Bybit API
   void connect() {
-    int timestamp = DateTime.now().millisecondsSinceEpoch + timeout;
-    String signature = sign(secret: password, timestamp: timestamp);
-    String param = 'api_key=' +
+    var timestamp = DateTime.now().millisecondsSinceEpoch + timeout;
+    var signature = sign(secret: password, timestamp: timestamp);
+    var param = 'api_key=' +
         key +
         '&expires=' +
         timestamp.toString() +
@@ -61,7 +61,7 @@ class ByBitWebSocket {
         signature;
     log.i('Open WebSocket on: ' + url + '?' + param);
     websocket = WebSocketChannel.connect(Uri.parse(url + '?' + param));
-    stream = websocket.stream.map((event) => jsonDecode(event));
+    stream = websocket.stream.map((event) => jsonDecode(event.toString()));
   }
 
   /// Disconnect the WebSocket
@@ -73,27 +73,27 @@ class ByBitWebSocket {
   /// Generate a signature needed for the WebSocket authentication as defined here:
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-websocketauthentication
   String sign({@required String secret, @required int timestamp}) {
-    List<int> msg = utf8.encode('GET/realtime' + timestamp.toString());
-    List<int> key = utf8.encode(secret);
-    Hmac hmac = new Hmac(sha256, key);
+    var msg = utf8.encode('GET/realtime' + timestamp.toString());
+    var key = utf8.encode(secret);
+    var hmac = Hmac(sha256, key);
     return hmac.convert(msg).toString();
   }
 
   /// Send a command ([op]) and optional arguments to Bybit over the websocket
   void request({@required String op, List<String> args}) {
-    String cmd = '{"op":"$op"';
+    var cmd = '{"op":"$op"';
     if (args != null && args != []) {
       cmd = cmd + ',"args": ["' + args.join('.') + '"]';
     }
     cmd += '}';
-    log.d("send command " + cmd);
+    log.d('send command ' + cmd);
     websocket.sink.add(cmd);
   }
 
   /// send a subscribtion request to a specific [topic] to Bybit
   void subscribeTo(
       {@required String topic, String symbol = '', String filter = ''}) {
-    List<String> args = [];
+    var args = <String>[];
     args.add(topic);
     if (filter != null && filter != '') args.add(filter);
     if (symbol != null && symbol != '') args.add(symbol);

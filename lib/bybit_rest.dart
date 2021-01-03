@@ -49,25 +49,25 @@ class ByBitRest {
   /// Generate a signature needed for the REST authentication as defined here:
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-constructingtherequest
   String sign({@required String secret, @required SortedMap query}) {
-    String queryString = '';
+    var queryString = '';
     query.forEach((key, value) {
       queryString += '$key=$value&';
     });
     // remove last '&' from string
     queryString = queryString.substring(0, queryString.length - 1);
-    List<int> msg = utf8.encode(queryString);
-    List<int> key = utf8.encode(secret);
-    Hmac hmac = new Hmac(sha256, key);
+    var msg = utf8.encode(queryString);
+    var key = utf8.encode(secret);
+    var hmac = Hmac(sha256, key);
     return hmac.convert(msg).toString();
   }
 
   /// Send command to Bybit
-  Future<Map<String, dynamic>> request(
+  Future<dynamic> request(
       {@required String path,
       Map<String, dynamic> parameters,
       bool withAuthentication = false,
       String type = 'POST'}) async {
-    var map = new SortedMap(Ordering.byKey());
+    var map = SortedMap(Ordering.byKey());
 
     if (parameters != null) {
       /// Keep the parameters sorted alphabetically for valid requests
@@ -77,30 +77,31 @@ class ByBitRest {
       });
     }
 
-    String params = '';
+    var params = '';
     if (withAuthentication) {
       map['api_key'] = key;
-      int timestamp = DateTime.now().millisecondsSinceEpoch;
+      var timestamp = DateTime.now().millisecondsSinceEpoch;
       map['timestamp'] = timestamp;
       map['recv_window'] = timeout;
-      String signature = sign(secret: password, query: map);
+      var signature = sign(secret: password, query: map);
       map['sign'] = signature;
     }
 
     http.Response response;
-    Map<String, String> header = Map<String, String>();
+    var header = <String, String>{};
     header['Content-Type'] = 'application/json; charset=utf-8';
     if (type == 'POST') {
-      String finalUrl = url + path;
-      String query = '{';
+      var finalUrl = url + path;
+      var query = '{';
       map.forEach((key, value) {
         query += '"$key":';
-        if (value is String)
+        if (value is String) {
           query += '"$value"';
-        else if (value is double)
+        } else if (value is double) {
           query = query + '"' + value.toString() + '"';
-        else
+        } else {
           query += value.toString();
+        }
         query += ',';
       });
       // replace last ',' in query string
@@ -108,25 +109,28 @@ class ByBitRest {
       query += '}';
       log.d('POST ' + finalUrl + ' ' + header.toString() + ' ' + query);
       response = await http.post(finalUrl, headers: header, body: query);
+      if (response.statusCode != 200) {
+        log.e('HTTP response status code: ' + response.statusCode.toString());
+      }
+      return jsonDecode(response.body);
     } else if (type == 'GET') {
       header['Content-Type'] = 'application/json; charset=utf-8';
       if (map.isNotEmpty) params = '?';
       map.forEach((id, value) {
-        params = params + id + '=' + value.toString() + '&';
+        params = params + id.toString() + '=' + value.toString() + '&';
       });
       // remove last '&' from string
       if (map.isNotEmpty) params = params.substring(0, params.length - 1);
-      String finalUrl = url + path + params;
+      var finalUrl = url + path + params;
       log.d('GET ' + finalUrl);
       response = await http.get(finalUrl, headers: header);
+      if (response.statusCode != 200) {
+        log.e('HTTP response status code: ' + response.statusCode.toString());
+      }
+      return jsonDecode(response.body);
     } else {
       log.e('Request type ' + type + ' is not supported');
       return jsonDecode('');
     }
-
-    if (response.statusCode != 200) {
-      log.e('HTTP response status code: ' + response.statusCode.toString());
-    }
-    return jsonDecode(response.body);
   }
 }
