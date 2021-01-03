@@ -563,7 +563,7 @@ class ByBit {
     var parameters = <String, dynamic>{};
     parameters['symbol'] = symbol;
     return rest.request(
-        path: '/2/private/funding/prev-funding-rate',
+        path: '/v2/private/funding/prev-funding-rate',
         type: 'GET',
         parameters: parameters,
         withAuthentication: true);
