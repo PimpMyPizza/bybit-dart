@@ -19,7 +19,7 @@
 
 # ByBit
 
-ByBit is a [Dart](https://dart.dev/) library for an easy communication with the [bybit](https://www.bybit.com/) exchange platform [API](https://bybit-exchange.github.io/docs/inverse/#t-introduction). This package allows to make simple API call over simple HTTP-requests (REST) or with WebSocket subscriptions.
+ByBit is a [Dart](https://dart.dev/) library for an easy communication with the [bybit](https://www.bybit.com/) exchange platform [API](https://bybit-exchange.github.io/docs/inverse/#t-introduction). This package allows to make simple REST API call or to subscribe to several WebSockets channels topics.
 
 ## How to use
 
@@ -77,7 +77,7 @@ FutureBuilder(
 
 ## Example
 
-See [the file example/lib/main.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main.dart) for a concrete example of WebSocket (stream) and Future (http) communication. The files [main_flutter_stream.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main_flutter_future.dart) and [main_flutter_future.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main_flutter_future.dart) show a examples using flutter Widgets.
+See [the file example/lib/main.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main.dart) for a simple Dart example. Also, the files [main_flutter_stream.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main_flutter_future.dart) and [main_flutter_future.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main_flutter_future.dart) show examples using `FutureBuilder` and `StreamBuilder`.
 
 ## List of functions
 
