@@ -24,6 +24,8 @@ class ByBitWebSocket {
   /// Timeout for the requests used by bybit to prevent replay attacks.
   final int timeout;
 
+  final int pingLoopTimer;
+
   /// For easy debugging
   LoggerSingleton log;
 
@@ -40,13 +42,8 @@ class ByBitWebSocket {
       this.key = '',
       this.password = '',
       this.timeout = 1000,
-      int pingLoopTimer = 30}) {
+      this.pingLoopTimer = 30}) {
     log = LoggerSingleton();
-    if (pingLoopTimer > 0) {
-      pingTimer = Timer.periodic(Duration(seconds: pingLoopTimer), (timer) {
-        ping();
-      });
-    }
   }
 
   /// Open a WebSocket connection to the Bybit API
@@ -62,6 +59,12 @@ class ByBitWebSocket {
     log.i('Open WebSocket on: ' + url + '?' + param);
     websocket = WebSocketChannel.connect(Uri.parse(url + '?' + param));
     stream = websocket.stream.map((event) => jsonDecode(event.toString()));
+    ping(); // Start ping
+    if (pingLoopTimer > 0) {
+      pingTimer = Timer.periodic(Duration(seconds: pingLoopTimer), (timer) {
+        ping();
+      });
+    }
   }
 
   /// Disconnect the WebSocket
