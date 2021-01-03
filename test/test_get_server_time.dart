@@ -2,7 +2,7 @@ import 'package:test/test.dart';
 import 'package:bybit/bybit.dart';
 
 void testGetServerTime() {
-  ByBit bybit = ByBit(key: '', password: '');
+  var bybit = ByBit();
   setUp(() {
     bybit.connect();
   });

@@ -1,7 +1,7 @@
 name: example
 description: Example of the utilisation of the bybit library
 publish_to: 'none'
-version: 0.3.0
+version: 1.0.0
 environment:
   sdk: ">=2.7.0 <3.0.0"
 dependencies:

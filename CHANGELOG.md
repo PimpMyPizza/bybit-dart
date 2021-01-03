@@ -1,6 +1,10 @@
+## [1.0.0]
+
+* More doc, static analysis and other minor changes
+
 ## [0.5.0]
 
-* API responses are now automatically casted to JSON types (MAP<String, dynamic>)
+* API responses are now automatically mapped to JSON objects
 * ByBit object is no more a singleton.
 * More doc
 

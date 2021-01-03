@@ -5,7 +5,7 @@ import 'package:bybit/bybit.dart';
 class Example extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    ByBit bybit = ByBit(websocketUrl: 'wss://stream.bytick.com/realtime');
+    var bybit = ByBit(websocketUrl: 'wss://stream.bytick.com/realtime');
     bybit.connect();
     bybit.subscribeToKlines(symbol: 'ETHUSD', interval: '1');
     bybit.subscribeToKlines(symbol: 'BTCUSD', interval: 'D');
