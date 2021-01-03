@@ -19,13 +19,13 @@
 
 # ByBit
 
-ByBit is a [Dart](https://dart.dev/) library for an easy communication with the [bybit](https://www.bybit.com/) exchange platform [API](https://bybit-exchange.github.io/docs/inverse/#t-introduction). This package allows to make simple REST API call or to subscribe to several WebSockets channels topics.
+ByBit is a [Dart](https://dart.dev/) library for an easy communication with the [bybit](https://www.bybit.com/) exchange platform [API](https://bybit-exchange.github.io/docs/inverse/#t-introduction). This package allows to make simple REST API calls or to subscribe to several WebSockets channels topics.
 
 ## How to use
 
 ### Create a ByBit instance
 
-Note that all the parameters are optional, but you need a valid key and password to access private topics from bybit. You can create your own api-key [on the bybit website](https://www.bybit.com/app/user/api-management);
+Note that all the parameters are optional, but you need a valid key and password to access private topics from bybit. You can create your own api-key [on the bybit website](https://www.bybit.com/app/user/api-management)
 
 ``` Dart
 ByBit bybit = ByBit(
@@ -44,7 +44,7 @@ ByBit bybit = ByBit(
 bybit.connect();
 ```
 
-### Subscribe to topics and read stream...
+### Subscribe to topics and read the websocket stream...
 
 ``` Dart
 // ...
@@ -77,7 +77,7 @@ FutureBuilder(
 
 ## Example
 
-See [the file example/lib/main.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main.dart) for a simple Dart example. Also, the files [main_flutter_stream.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main_flutter_future.dart) and [main_flutter_future.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main_flutter_future.dart) show examples using `FutureBuilder` and `StreamBuilder`.
+See [the file main.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main.dart) in the `example/lib/` directory for a simple Dart example. Also, the files [main_flutter_stream.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main_flutter_future.dart) and [main_flutter_future.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main_flutter_future.dart) show examples using `FutureBuilder` and `StreamBuilder`.
 
 ## List of functions
 
