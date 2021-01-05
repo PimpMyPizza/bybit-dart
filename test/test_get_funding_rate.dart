@@ -18,7 +18,7 @@ void testGetFundingRate() {
       expect(true, false);
       return;
     }
-    expect(data['ret_code'], 10017);
+    expect(data['ret_code'], 10003);
   });
 
   tearDown(() {

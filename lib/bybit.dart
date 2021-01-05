@@ -155,6 +155,73 @@ class ByBit {
         path: '/v2/public/liq-records', type: 'GET', parameters: parameters);
   }
 
+  /// Query mark price kline (like Query Kline but for mark price).
+  ///
+  /// https://bybit-exchange.github.io/docs/inverse/#t-markpricekline
+  Future<dynamic> getMarkPriceKLine(
+      {@required String symbol,
+      @required String interval,
+      @required int from,
+      int limit}) {
+    log.i('Get the liquidated orders');
+    var parameters = <String, dynamic>{};
+    parameters['symbol'] = symbol;
+    parameters['interval'] = interval;
+    parameters['from'] = from;
+    if (limit != null) parameters['limit'] = limit;
+    return rest.request(
+        path: '/v2/public/mark-price-kline',
+        type: 'GET',
+        parameters: parameters);
+  }
+
+  /// Gets the total amount of unsettled contracts. In other words, the total
+  /// number of contracts held in open positions.
+  ///
+  /// [period] must be one of the followin strings :
+  /// '5min', '15min', '30min', '1h', '4h', '1d'
+  /// https://bybit-exchange.github.io/docs/inverse/#t-marketopeninterest
+  Future<dynamic> getOpenInterest(
+      {@required String symbol, @required String interval, int limit}) {
+    log.i('Get the liquidated orders');
+    var parameters = <String, dynamic>{};
+    parameters['symbol'] = symbol;
+    parameters['period'] = interval;
+    if (limit != null) parameters['limit'] = limit;
+    return rest.request(
+        path: '/v2/public/open-interest', type: 'GET', parameters: parameters);
+  }
+
+  /// Obtain filled orders worth more than 500,000 USD within the last 24h.
+  ///
+  /// [period] must be one of the followin strings :
+  /// '5min', '15min', '30min', '1h', '4h', '1d'
+  /// https://bybit-exchange.github.io/docs/inverse/#t-marketopeninterest
+  Future<dynamic> getLatestBigDeals({@required String symbol, int limit}) {
+    log.i('Get the liquidated orders');
+    var parameters = <String, dynamic>{};
+    parameters['symbol'] = symbol;
+    if (limit != null) parameters['limit'] = limit;
+    return rest.request(
+        path: '/v2/public/big-deal', type: 'GET', parameters: parameters);
+  }
+
+  /// Gets the Bybit user accounts' long-short ratio.
+  ///
+  /// [period] must be one of the followin strings :
+  /// '5min', '15min', '30min', '1h', '4h', '1d'
+  /// https://bybit-exchange.github.io/docs/inverse/#t-marketopeninterest
+  Future<dynamic> getLongShortRatio(
+      {@required String symbol, @required String interval, int limit}) {
+    log.i('Get the liquidated orders');
+    var parameters = <String, dynamic>{};
+    parameters['symbol'] = symbol;
+    parameters['period'] = interval;
+    if (limit != null) parameters['limit'] = limit;
+    return rest.request(
+        path: '/v2/public/account-ratio', type: 'GET', parameters: parameters);
+  }
+
   /// Place active order
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-placeactive
   Future<dynamic> placeActiveOrder(
@@ -563,7 +630,7 @@ class ByBit {
     var parameters = <String, dynamic>{};
     parameters['symbol'] = symbol;
     return rest.request(
-        path: '/2/private/funding/prev-funding-rate',
+        path: '/v2/private/funding/prev-funding-rate',
         type: 'GET',
         parameters: parameters,
         withAuthentication: true);
@@ -738,8 +805,13 @@ class ByBit {
         depth.toString() +
         ' for the symbol: ' +
         symbol);
-    websocket.subscribeTo(
-        topic: 'orderBookL2_' + depth.toString(), symbol: symbol);
+    if (depth == 25) {
+      websocket.subscribeTo(
+          topic: 'orderBookL2_' + depth.toString(), symbol: symbol);
+    } else if (depth == 200) {
+      websocket.subscribeTo(
+          topic: 'orderBook_' + depth.toString() + '.100ms', symbol: symbol);
+    }
   }
 
   /// Get real-time trading information.
@@ -765,6 +837,7 @@ class ByBit {
 
   /// Subscribe to the position channel. You need to have a valid api-key
   /// in order to receive a valid response from the server
+  /// https://bybit-exchange.github.io/docs/inverse/#t-websocketposition
   void subscribeToPosition() {
     log.i('Subscribe to position');
     websocket.subscribeTo(topic: 'position');
