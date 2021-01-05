@@ -1,3 +1,12 @@
+## [1.1.0]
+
+* Added new endpoints connections
+  - getMarkPriceKLine
+  - getOpenInterest
+  - getLatestBigDeals
+  - getLongShortRatio
+* minor bug-fixes
+
 ## [1.0.0]
 
 * More doc, static analysis and other minor changes
