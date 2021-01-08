@@ -11,11 +11,11 @@ void testPlaceConditionalOrder() {
     var data = await bybit.placeConditionalOrder(
         symbol: 'BTCUSD',
         side: 'Buy',
-        orderType: 'Buy',
-        quantity: '10',
-        basePrice: '10',
-        triggerPrice: '10',
-        timeInForce: '10',
+        orderType: 'Market',
+        quantity: 10,
+        basePrice: 10.0,
+        triggerPrice: 10.0,
+        timeInForce: 'GoodTillCancel',
         triggerBy: 'dontcare');
 
     if (data == null) {

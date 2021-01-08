@@ -257,7 +257,7 @@ class ByBit {
   }
 
   /// Get active order
-  /// https://bybit-exchange.github.io/docs/inverse/?console#t-placeactive
+  /// https://bybit-exchange.github.io/docs/inverse/?console#t-getactive
   Future<dynamic> getActiveOrder(
       {@required String symbol,
       String orderStatus,
@@ -356,10 +356,10 @@ class ByBit {
       {@required String symbol,
       @required String side,
       @required String orderType,
-      @required String quantity,
-      String price,
-      @required String basePrice,
-      @required String triggerPrice,
+      @required int quantity,
+      double price,
+      @required double basePrice,
+      @required double triggerPrice,
       @required String timeInForce,
       @required String triggerBy,
       bool closeOnTrigger,
@@ -369,12 +369,12 @@ class ByBit {
     parameters['symbol'] = symbol;
     parameters['side'] = side;
     parameters['order_type'] = orderType;
-    parameters['qty'] = quantity;
-    parameters['base_price'] = basePrice;
-    parameters['stop_px'] = triggerPrice;
+    parameters['qty'] = quantity.toString();
+    parameters['base_price'] = basePrice.toString();
+    parameters['stop_px'] = triggerPrice.toString();
     parameters['time_in_force'] = timeInForce;
     parameters['trigger_by'] = triggerBy;
-    if (price != null) parameters['price'] = price;
+    if (price != null) parameters['price'] = price.toString();
     if (closeOnTrigger != null) parameters['close_on_trigger'] = closeOnTrigger;
     if (orderLinkId != null) parameters['order_link_id'] = orderLinkId;
     return rest.request(
@@ -443,18 +443,22 @@ class ByBit {
       {@required String symbol,
       String stopOrderId,
       String orderLinkId,
-      String newOrderQuantity,
-      String newOrderPrice,
-      String newTriggerPrice}) {
+      int newOrderQuantity,
+      double newOrderPrice,
+      double newTriggerPrice}) {
     log.i('Update conditional order');
     var parameters = <String, dynamic>{};
     parameters['symbol'] = symbol;
     if (stopOrderId != null) parameters['stop_order_id'] = stopOrderId;
     if (orderLinkId != null) parameters['order_link_id'] = orderLinkId;
-    if (newOrderQuantity != null) parameters['p_r_qty'] = newOrderQuantity;
-    if (newOrderPrice != null) parameters['p_r_price'] = newOrderPrice;
+    if (newOrderQuantity != null) {
+      parameters['p_r_qty'] = newOrderQuantity.toString();
+    }
+    if (newOrderPrice != null) {
+      parameters['p_r_price'] = newOrderPrice.toString();
+    }
     if (newTriggerPrice != null) {
-      parameters['p_r_trigger_price'] = newTriggerPrice;
+      parameters['p_r_trigger_price'] = newTriggerPrice.toString();
     }
     return rest.request(
         path: '/v2/private/stop-order/replace',

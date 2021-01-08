@@ -1,3 +1,11 @@
+## [1.2.0]
+
+* Minor changes in the parameters type of the following functions:
+  - placeConditionalOrder
+  - updateConditionalOrder
+  prices and quantities parameters are now of type double/int
+* Minor doc changes
+
 ## [1.1.0]
 
 * Added new endpoints connections
@@ -5,7 +13,7 @@
   - getOpenInterest
   - getLatestBigDeals
   - getLongShortRatio
-* minor bug-fixes
+* Minor bug-fixes
 
 ## [1.0.0]
 
