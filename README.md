@@ -77,7 +77,7 @@ FutureBuilder(
 
 ## Example
 
-See [the file main.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main.dart) in the `example/lib/` directory for a simple Dart example. Also, the files [main_flutter_stream.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main_flutter_future.dart) and [main_flutter_future.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main_flutter_future.dart) show examples using `FutureBuilder` and `StreamBuilder`.
+See [the file main.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main.dart) in the `example/lib/` directory for a simple Dart example. Also, the files [main_flutter_stream.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main_flutter_stream.dart) and [main_flutter_future.dart](https://github.com/PimpMyPizza/bybit-dart/blob/main/example/lib/main_flutter_future.dart) show examples using `FutureBuilder` and `StreamBuilder`.
 
 ## List of functions
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:bybit/bybit.dart';
 
-/// Just a contains that shows the outputs of the ByBit websocket
+/// Just a container that shows the outputs of the ByBit websocket
 class Example extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
