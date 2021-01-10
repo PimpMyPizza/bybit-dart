@@ -11,11 +11,14 @@ Future<void> readWebSocket(Stream<dynamic> stream, int count) async {
 }
 
 void main() async {
-  var bybit = ByBit(logLevel: 'ERROR');
+  var bybit = ByBit(logLevel: 'DEBUG');
+  bybit.getSymbolsInfoPeriodic(period: Duration(seconds: 1));
   bybit.connect();
-  bybit.subscribeToKlines(symbol: 'BTCUSD', interval: 'D');
-  await readWebSocket(bybit.websocket.stream, 3);
-  var symbols = await bybit.getSymbolsInfo();
-  print(symbols);
+  //bybit.subscribeToKlines(symbol: 'BTCUSD', interval: 'D');
+  await readWebSocket(bybit.stream, 30);
+  //var symbols = await bybit.getSymbolsInfo();
+  //print(symbols);
+  var test = await bybit.getLiquidatedOrders(symbol: 'ETHUSD', limit: 3);
+  print(test);
   bybit.disconnect();
 }

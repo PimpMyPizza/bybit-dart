@@ -24,7 +24,8 @@ class ByBitWebSocket {
   /// Timeout for the requests used by bybit to prevent replay attacks.
   final int timeout;
 
-  final int pingLoopTimer;
+  /// Ping period in seconds
+  final int pingPeriod;
 
   /// For easy debugging
   LoggerSingleton log;
@@ -33,7 +34,7 @@ class ByBitWebSocket {
   Timer pingTimer;
 
   /// Stream that remaps the websocket stream output to json data.
-  Stream<dynamic> stream;
+  Stream<Map<String, dynamic>> stream;
 
   /// Connect to the server with a WebSocket. A ping shall be send every
   /// [pingLooTimer] seconds in order to keep the connection alive.
@@ -42,7 +43,7 @@ class ByBitWebSocket {
       this.key = '',
       this.password = '',
       this.timeout = 1000,
-      this.pingLoopTimer = 30}) {
+      this.pingPeriod = 30}) {
     log = LoggerSingleton();
   }
 
@@ -58,10 +59,11 @@ class ByBitWebSocket {
         signature;
     log.i('Open WebSocket on: ' + url + '?' + param);
     websocket = WebSocketChannel.connect(Uri.parse(url + '?' + param));
-    stream = websocket.stream.map((event) => jsonDecode(event.toString()));
-    ping(); // Start ping
-    if (pingLoopTimer > 0) {
-      pingTimer = Timer.periodic(Duration(seconds: pingLoopTimer), (timer) {
+    stream = websocket.stream
+        .map((event) => jsonDecode(event.toString()) as Map<String, dynamic>);
+    if (pingPeriod > 0) {
+      ping(); // Start ping
+      pingTimer = Timer.periodic(Duration(seconds: pingPeriod), (timer) {
         ping();
       });
     }
