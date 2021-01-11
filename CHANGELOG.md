@@ -1,3 +1,10 @@
+## [1.3.0]
+
+* Added the possibility to make periodic REST API calls.
+* All API responses from the server (Websockets and periodic REST) are merged into one single stream.
+* See README.md for an adapted tutorial
+* Minor bugfixed and typos in doc
+
 ## [1.2.0]
 
 * Minor changes in the parameters type of the following functions:

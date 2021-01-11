@@ -163,7 +163,9 @@ class ByBitRest {
   void getOrderBookPeriodic(
       {@required String symbol, @required Duration period}) {
     log.d('ByBitRest.getOrderBookPeriodic');
-    //return getOrderBook(symbol: symbol, period: period);
+    streamList.add(Stream.periodic(period, (_) {
+      return getOrderBook(symbol: symbol);
+    }).asyncMap((event) async => await event));
   }
 
   /// Get kline. https://bybit-exchange.github.io/docs/inverse/?console#t-querykline
@@ -191,6 +193,10 @@ class ByBitRest {
       int limit = -1,
       Duration period}) async {
     log.d('ByBitRest.getKLinePeriodic ' + symbol);
+    streamList.add(Stream.periodic(period, (_) {
+      return getKLine(
+          symbol: symbol, interval: interval, from: from, limit: limit);
+    }).asyncMap((event) async => await event));
   }
 
   /// Get the latest information for symbol.
@@ -207,6 +213,9 @@ class ByBitRest {
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-latestsymbolinfo
   void getTickersPeriodic({String symbol, @required Duration period}) {
     log.d('ByBitRest.getTickersPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getTickers(symbol: symbol);
+    }).asyncMap((event) async => await event));
   }
 
   /// Get recent trades.
@@ -240,6 +249,9 @@ class ByBitRest {
       int limit,
       @required Duration period}) {
     log.d('ByBitRest.getTradingRecordsPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getTradingRecords(symbol: symbol, from: from, limit: limit);
+    }).asyncMap((event) async => await event));
   }
 
   /// Get the information for all symbols.
@@ -253,19 +265,9 @@ class ByBitRest {
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-querysymbol
   void getSymbolsInfoPeriodic({@required Duration period}) {
     log.d('ByBitRest.getSymbolsInfoPeriodic');
-
-    //var test = Stream<Map<String, dynamic>>.fromFuture(getSymbolsInfo());
-    //Stream<Map<String, dynamic>>.periodic(period, )
-    /*Stream<Map<String, dynamic>> getSymbolsInfoStream() async* {
-      yield* Stream.periodic(period, (_) {
-        return await getSymbolsInfo();
-      }).asyncMap((event) async => await event);
-    }*/
-    /* Stream<String> checkConnectionStream() async* {
-    yield* Stream.periodic(Duration(seconds: _pollingInterval), (_) {
-      return await _connectionRepository.checkConnection();
-    }).asyncMap((event) async => await event);
-    }*/
+    streamList.add(Stream.periodic(period, (_) {
+      return getSymbolsInfo();
+    }).asyncMap((event) async => await event));
   }
 
   /// Retrieve the liquidated orders.
@@ -305,6 +307,14 @@ class ByBitRest {
       int endTime,
       Duration period}) {
     log.d('ByBitRest.getLiquidatedOrdersPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getLiquidatedOrders(
+          symbol: symbol,
+          from: from,
+          limit: limit,
+          startTime: startTime,
+          endTime: endTime);
+    }).asyncMap((event) async => await event));
   }
 
   /// Query mark price kline (like Query Kline but for mark price).
@@ -337,6 +347,10 @@ class ByBitRest {
       int limit,
       Duration period}) {
     log.d('ByBitRest.getMarkPriceKLinePeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getMarkPriceKLine(
+          symbol: symbol, interval: interval, from: from, limit: limit);
+    }).asyncMap((event) async => await event));
   }
 
   /// Gets the total amount of unsettled contracts. In other words, the total
@@ -369,6 +383,9 @@ class ByBitRest {
       int limit,
       Duration period}) {
     log.d('ByBitRest.getOpenInterestPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getOpenInterest(symbol: symbol, interval: interval, limit: limit);
+    }).asyncMap((event) async => await event));
   }
 
   /// Obtain filled orders worth more than 500,000 USD within the last 24h.
@@ -395,6 +412,9 @@ class ByBitRest {
   void getLatestBigDealsPeriodic(
       {@required String symbol, int limit, @required Duration period}) {
     log.d('ByBitRest.getLatestBigDealsPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getLatestBigDeals(symbol: symbol, limit: limit);
+    }).asyncMap((event) async => await event));
   }
 
   /// Gets the Bybit user accounts' long-short ratio.
@@ -424,6 +444,10 @@ class ByBitRest {
       int limit,
       Duration period}) {
     log.d('ByBitRest.getLongShortRatioPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getLongShortRatio(
+          symbol: symbol, interval: interval, limit: limit);
+    }).asyncMap((event) async => await event));
   }
 
   /// Place active order
@@ -476,6 +500,20 @@ class ByBitRest {
       String orderLinkId,
       Duration period}) {
     log.d('ByBitRest.placeActiveOrderPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return placeActiveOrder(
+          symbol: symbol,
+          side: side,
+          orderType: orderType,
+          quantity: quantity,
+          timeInForce: timeInForce,
+          price: price,
+          takeProfit: takeProfit,
+          stopLoss: stopLoss,
+          reduceOnly: reduceOnly,
+          closeOnTrigger: closeOnTrigger,
+          orderLinkId: orderLinkId);
+    }).asyncMap((event) async => await event));
   }
 
   /// Get active order
@@ -510,6 +548,14 @@ class ByBitRest {
       String cursor,
       Duration period}) {
     log.d('ByBitRest.getActiveOrderPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getActiveOrder(
+          symbol: symbol,
+          orderStatus: orderStatus,
+          direction: direction,
+          limit: limit,
+          cursor: cursor);
+    }).asyncMap((event) async => await event));
   }
 
   /// Cancel active order. Note that either orderId or orderLinkId are required
@@ -536,6 +582,10 @@ class ByBitRest {
       String orderLinkId,
       Duration period}) {
     log.d('ByBitRest.cancelActiveOrderPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return cancelActiveOrder(
+          symbol: symbol, orderId: orderId, orderLinkId: orderLinkId);
+    }).asyncMap((event) async => await event));
   }
 
   /// Cancel all active orders that are unfilled or partially filled. Fully
@@ -559,6 +609,9 @@ class ByBitRest {
   void cancelAllActiveOrdersPeriodic(
       {@required String symbol, @required Duration period}) {
     log.d('ByBitRest.cancelAllActiveOrdersPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return cancelAllActiveOrders(symbol: symbol);
+    }).asyncMap((event) async => await event));
   }
 
   /// Replace order can modify/amend your active orders.
@@ -597,6 +650,14 @@ class ByBitRest {
       double newOrderPrice,
       Duration period}) {
     log.d('ByBitRest.updateActiveOrderPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return updateActiveOrder(
+          symbol: symbol,
+          orderId: orderId,
+          orderLinkId: orderLinkId,
+          newOrderQuantity: newOrderQuantity,
+          newOrderPrice: newOrderPrice);
+    }).asyncMap((event) async => await event));
   }
 
   /// Query real-time active order information.
@@ -623,6 +684,10 @@ class ByBitRest {
       String orderLinkId,
       Duration period}) {
     log.d('ByBitRest.getRealTimeActiveOrderPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getRealTimeActiveOrder(
+          symbol: symbol, orderId: orderId, orderLinkId: orderLinkId);
+    }).asyncMap((event) async => await event));
   }
 
   /// Place a market price conditional order
@@ -675,6 +740,20 @@ class ByBitRest {
       String orderLinkId,
       Duration period}) {
     log.d('ByBitRest.placeConditionalOrderPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return placeConditionalOrder(
+          symbol: symbol,
+          side: side,
+          orderType: orderType,
+          quantity: quantity,
+          price: price,
+          basePrice: basePrice,
+          triggerPrice: triggerPrice,
+          timeInForce: timeInForce,
+          triggerBy: triggerBy,
+          closeOnTrigger: closeOnTrigger,
+          orderLinkId: orderLinkId);
+    }).asyncMap((event) async => await event));
   }
 
   /// Get user conditional order list.
@@ -711,6 +790,14 @@ class ByBitRest {
       String cursor,
       Duration period}) {
     log.d('ByBitRest.getConditionalOrdersPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getConditionalOrders(
+          symbol: symbol,
+          stopOrderStatus: stopOrderStatus,
+          direction: direction,
+          limit: limit,
+          cursor: cursor);
+    }).asyncMap((event) async => await event));
   }
 
   /// Cancel untriggered conditional order.
@@ -737,6 +824,10 @@ class ByBitRest {
       String orderLinkId,
       Duration period}) {
     log.d('ByBitRest.cancelConditionalOrderPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return cancelConditionalOrder(
+          symbol: symbol, orderId: orderId, orderLinkId: orderLinkId);
+    }).asyncMap((event) async => await event));
   }
 
   /// Cancel all untriggered conditional orders.
@@ -758,6 +849,9 @@ class ByBitRest {
   void cancelAllConditionalOrdersPeriodic(
       {@required String symbol, @required Duration period}) {
     log.d('ByBitRest.cancelAllConditionalOrdersPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return cancelAllConditionalOrders(symbol: symbol);
+    }).asyncMap((event) async => await event));
   }
 
   /// Update conditional order.
@@ -801,6 +895,15 @@ class ByBitRest {
       double newTriggerPrice,
       Duration period}) {
     log.d('ByBitRest.updateConditionalOrderPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return updateConditionalOrder(
+          symbol: symbol,
+          stopOrderId: stopOrderId,
+          orderLinkId: orderLinkId,
+          newOrderQuantity: newOrderQuantity,
+          newOrderPrice: newOrderPrice,
+          newTriggerPrice: newTriggerPrice);
+    }).asyncMap((event) async => await event));
   }
 
   /// Query conditional order.
@@ -827,6 +930,10 @@ class ByBitRest {
       String orderLinkId,
       Duration period}) {
     log.d('ByBitRest.getConditionalOrderPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getConditionalOrder(
+          symbol: symbol, stopOrderId: stopOrderId, orderLinkId: orderLinkId);
+    }).asyncMap((event) async => await event));
   }
 
   /// Get user position list.
@@ -846,6 +953,9 @@ class ByBitRest {
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-myposition
   void getPositionPeriodic({String symbol, @required Duration period}) {
     log.d('ByBitRest.getPositionPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getPosition(symbol: symbol);
+    }).asyncMap((event) async => await event));
   }
 
   /// Update margin.
@@ -870,6 +980,9 @@ class ByBitRest {
       @required double margin,
       @required Duration period}) {
     log.d('ByBitRest.setMarginPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return setMargin(symbol: symbol, margin: margin);
+    }).asyncMap((event) async => await event));
   }
 
   /// Set trading-stop.
@@ -912,6 +1025,16 @@ class ByBitRest {
       double newTrailingTriggerPrice,
       Duration period}) {
     log.d('ByBitRest.setTradingStopPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return setTradingStop(
+          symbol: symbol,
+          takeProfit: takeProfit,
+          stopLoss: stopLoss,
+          trailingStop: trailingStop,
+          tpTriggerBy: tpTriggerBy,
+          slTriggerBy: slTriggerBy,
+          newTrailingTriggerPrice: newTrailingTriggerPrice);
+    }).asyncMap((event) async => await event));
   }
 
   /// Set leverage.
@@ -936,6 +1059,9 @@ class ByBitRest {
       @required double leverage,
       @required Duration period}) {
     log.d('ByBitRest.setLeveragePeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return setLeverage(symbol: symbol, leverage: leverage);
+    }).asyncMap((event) async => await event));
   }
 
   /// Get user's trading records.
@@ -973,6 +1099,15 @@ class ByBitRest {
       String order,
       Duration period}) {
     log.d('ByBitRest.getUserTradingRecordsPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getUserTradingRecords(
+          symbol: symbol,
+          orderId: orderId,
+          startTime: startTime,
+          page: page,
+          limit: limit,
+          order: order);
+    }).asyncMap((event) async => await event));
   }
 
   /// Get user's closed profit and loss records.
@@ -1010,6 +1145,15 @@ class ByBitRest {
       int limit,
       Duration period}) {
     log.d('ByBitRest.getUserClosedProfitPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getUserClosedProfit(
+          symbol: symbol,
+          startTime: startTime,
+          endTime: endTime,
+          execType: execType,
+          page: page,
+          limit: limit);
+    }).asyncMap((event) async => await event));
   }
 
   /// Get risk limit.
@@ -1026,6 +1170,9 @@ class ByBitRest {
   /// https://bybit-exchange.github.io/docs/inverse/#t-risklimit
   void getRiskLimitPeriodic({@required Duration period}) {
     log.d('ByBitRest.getRiskLimitPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getRiskLimit();
+    }).asyncMap((event) async => await event));
   }
 
   /// Set risk limit.
@@ -1050,6 +1197,9 @@ class ByBitRest {
       @required int riskId,
       @required Duration period}) {
     log.d('ByBitRest.setRiskLimitPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return setRiskLimit(symbol: symbol, riskId: riskId);
+    }).asyncMap((event) async => await event));
   }
 
   /// Get the last funding rate.
@@ -1070,6 +1220,9 @@ class ByBitRest {
   void getFundingRatePeriodic(
       {@required String symbol, @required Duration period}) {
     log.d('ByBitRest.getFundingRatePeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getFundingRate(symbol: symbol);
+    }).asyncMap((event) async => await event));
   }
 
   /// Get previous funding fee.
@@ -1091,6 +1244,9 @@ class ByBitRest {
   void getPreviousFundingFeePeriodic(
       {@required String symbol, @required Duration period}) {
     log.d('ByBitRest.getPreviousFundingFeePeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getPreviousFundingFee(symbol: symbol);
+    }).asyncMap((event) async => await event));
   }
 
   /// Get predicted funding rate and my funding fee.
@@ -1112,6 +1268,9 @@ class ByBitRest {
   void getPredictedFundingRateAndFundingFeePeriodic(
       {@required String symbol, @required Duration period}) {
     log.d('ByBitRest.getPredictedFundingRateAndFundingFeePeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getPredictedFundingRateAndFundingFee(symbol: symbol);
+    }).asyncMap((event) async => await event));
   }
 
   /// Get user's API key information.
@@ -1128,6 +1287,9 @@ class ByBitRest {
   /// https://bybit-exchange.github.io/docs/inverse/#t-key
   void getApiKeyInfoPeriodic({@required Duration period}) {
     log.d('ByBitRest.getApiKeyInfoPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getApiKeyInfo();
+    }).asyncMap((event) async => await event));
   }
 
   /// Get user's LCP (data refreshes once an hour).
@@ -1148,6 +1310,9 @@ class ByBitRest {
   void getUserLCPPeriodic(
       {@required String symbol, @required Duration period}) {
     log.d('ByBitRest.getUserLCPPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getUserLCP(symbol: symbol);
+    }).asyncMap((event) async => await event));
   }
 
   /// Get wallet balance.
@@ -1169,6 +1334,9 @@ class ByBitRest {
   void getWalletBalancePeriodic(
       {@required String currency, @required Duration period}) {
     log.d('ByBitRest.getWalletBalancePeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getWalletBalance(currency: currency);
+    }).asyncMap((event) async => await event));
   }
 
   /// Get wallet fund records.
@@ -1209,6 +1377,15 @@ class ByBitRest {
       int limit,
       @required Duration period}) {
     log.d('ByBitRest.getWalletFundRecordsPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getWalletFundRecords(
+          currency: currency,
+          startTimestamp: startTimestamp,
+          endTimestamp: endTimestamp,
+          walletFundType: walletFundType,
+          page: page,
+          limit: limit);
+    }).asyncMap((event) async => await event));
   }
 
   /// Get withdrawal records.
@@ -1248,6 +1425,15 @@ class ByBitRest {
       int limit,
       @required Duration period}) {
     log.d('ByBitRest.getWithdrawalRecordsPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getWithdrawalRecords(
+          currency: currency,
+          startTimestamp: startTimestamp,
+          endTimestamp: endTimestamp,
+          status: status,
+          page: page,
+          limit: limit);
+    }).asyncMap((event) async => await event));
   }
 
   /// Get asset exchange records.
@@ -1271,6 +1457,10 @@ class ByBitRest {
   void getAssetExchangeRecordsPeriodic(
       {String direction, int from, int limit, @required Duration period}) {
     log.d('ByBitRest.getAssetExchangeRecordsPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getAssetExchangeRecords(
+          direction: direction, from: from, limit: limit);
+    }).asyncMap((event) async => await event));
   }
 
   /// Get the server time (used for synchronization purposes for example).
@@ -1285,6 +1475,9 @@ class ByBitRest {
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-servertime
   void getServerTimePeriodic({@required Duration period}) {
     log.d('ByBitRest.getServerTimePeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getServerTime();
+    }).asyncMap((event) async => await event));
   }
 
   /// Get Bybit OpenAPI announcements in the last 30 days in reverse order.
@@ -1299,5 +1492,8 @@ class ByBitRest {
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-announcement
   void getAnnouncementPeriodic({@required Duration period}) {
     log.d('ByBitRest.getAnnouncementPeriodic');
+    streamList.add(Stream.periodic(period, (_) {
+      return getAnnouncement();
+    }).asyncMap((event) async => await event));
   }
 }

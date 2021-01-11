@@ -38,22 +38,40 @@ var bybit = ByBit(
         websocketTimeout: 2000);
 ```
 
+### Add Periodic REST API call if you want to
+
+```Dart
+bybit.getServerTimePeriodic(period: Duration(seconds: 5));
+bybit.getAnnouncementPeriodic(period: Duration(seconds: 5));
+bybit.getOpenInterestPeriodic(
+    symbol: 'ETHUSD',
+    interval: '15min',
+    period: Duration(seconds: 2),
+    limit: 3);
+```
+
 ### Connect to the server
+
+WARNING: At this moment, the periodic REST API call functions (all functions that end with 'Periodic') must be called *BEFORE* the `connect()` function and the WebSockets subscription functions must be called *AFTER* `connect()`. This will be changed in the next release.
 
 ``` Dart
 bybit.connect();
 ```
 
-### Subscribe to topics and read the websocket stream...
+### Subscribe to WebSocket topics
 
 ``` Dart
 // ...
 bybit.subscribeToKlines(symbol: 'ETHUSD', interval: '1');
 bybit.subscribeToKlines(symbol: 'BTCUSD', interval: 'D');
 bybit.subscribeToOrderBook(depth: 25);
-// ...
+```
+
+### Read the ByBit stream and handle the server response
+
+```Dart
 StreamBuilder(
-    stream: bybit.websocket.stream,
+    stream: bybit.stream,
     builder: (context, bybitResponse) {
           print('From WebSocket: ' + bybitResponse.data.toString());
           //...
@@ -62,7 +80,7 @@ StreamBuilder(
 //...
 ```
 
-### ... and/or make some REST API calls
+### You can also make single REST API calls
 
 ``` Dart
 // ...
