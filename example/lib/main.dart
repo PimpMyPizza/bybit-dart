@@ -5,7 +5,7 @@ Future<void> readWebSocket(Stream<dynamic> stream, int count) async {
   var i = 0;
   await for (var value in stream) {
     i++;
-    print(value)
+    print(value);
     if (i >= count) return;
   }
 }
@@ -34,7 +34,7 @@ void main() async {
   // Once the 10 first server response are shown, make a single REST API call
   var symbols = await bybit.getSymbolsInfo();
   print(symbols);
-  
+
   // Close sockets
   bybit.disconnect();
 }
