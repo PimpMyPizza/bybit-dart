@@ -40,7 +40,7 @@ var bybit = ByBit(
 
 ### Add periodic REST API call if you want to
 
-Sometimes, you want to get information from the API every x period of time. That's why this library allows one to set which REST API call has to be done periodically, and all the responses from the server are merged into one single stream.
+Sometimes, you want to get information from the API every x period of time. That's why this library allows one to set which REST API call has to be done periodically, and all the responses from the server are merged into one single stream. Please note [the limit of API calls](https://bybit-exchange.github.io/docs/inverse/#t-ratelimits).
 
 ```Dart
 bybit.getServerTimePeriodic(period: Duration(seconds: 5));
