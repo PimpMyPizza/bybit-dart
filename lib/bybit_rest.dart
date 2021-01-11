@@ -27,10 +27,7 @@ class ByBitRest {
   /// For easy debugging
   LoggerSingleton log;
 
-  /// Stream for periodic REST calls.
   Stream<Map<String, dynamic>> stream;
-
-  StreamController controller;
 
   /// Contains a list of periodic REST calls streams. These streams are
   /// merged together into one stream when the connect() function is called
@@ -1317,8 +1314,7 @@ class ByBitRest {
 
   /// Get wallet balance.
   /// https://bybit-exchange.github.io/docs/inverse/#t-wallet
-  Future<Map<String, dynamic>> getWalletBalance(
-      {@required String currency}) async {
+  Future<Map<String, dynamic>> getWalletBalance({String currency}) async {
     log.d('ByBitRest.getWalletBalance');
     var parameters = <String, dynamic>{};
     parameters['coin'] = currency;
@@ -1331,8 +1327,7 @@ class ByBitRest {
 
   /// Get wallet balance periodically.
   /// https://bybit-exchange.github.io/docs/inverse/#t-wallet
-  void getWalletBalancePeriodic(
-      {@required String currency, @required Duration period}) {
+  void getWalletBalancePeriodic({String currency, @required Duration period}) {
     log.d('ByBitRest.getWalletBalancePeriodic');
     streamList.add(Stream.periodic(period, (_) {
       return getWalletBalance(currency: currency);

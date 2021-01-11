@@ -1015,16 +1015,14 @@ class ByBit {
 
   /// Get wallet balance
   /// https://bybit-exchange.github.io/docs/inverse/#t-wallet
-  Future<Map<String, dynamic>> getWalletBalance(
-      {@required String currency}) async {
+  Future<Map<String, dynamic>> getWalletBalance({String currency}) async {
     log.i('Get wallet balance information.');
     return await rest.getWalletBalance(currency: currency);
   }
 
   /// Get wallet balance periodically.
   /// https://bybit-exchange.github.io/docs/inverse/#t-wallet
-  void getWalletBalancePeriodic(
-      {@required String currency, @required Duration period}) {
+  void getWalletBalancePeriodic({String currency, @required Duration period}) {
     log.i('Get wallet balance information periodically.');
     rest.getWalletBalancePeriodic(currency: currency, period: period);
   }
