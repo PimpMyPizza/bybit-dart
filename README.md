@@ -21,11 +21,11 @@
 
 ByBit is a [Dart](https://dart.dev/) library for an easy communication with the [bybit](https://www.bybit.com/) exchange platform [API](https://bybit-exchange.github.io/docs/inverse/#t-introduction). This package allows to make simple REST API calls or to subscribe to several WebSockets channels topics.
 
-## How to use
+## How to use it
 
 ### Create a ByBit instance
 
-Note that all the parameters are optional, but you need a valid key and password to access private topics from bybit. You can create your own api-key [on the bybit website](https://www.bybit.com/app/user/api-management)
+Note that all the parameters are optional, but you need a valid key and password to access private topics from bybit. You can create your own api-key [on the bybit website](https://www.bybit.com/app/user/api-management).
 
 ``` Dart
 var bybit = ByBit(
@@ -38,7 +38,9 @@ var bybit = ByBit(
         websocketTimeout: 2000);
 ```
 
-### Add Periodic REST API call if you want to
+### Add periodic REST API call if you want to
+
+Sometimes, you want to get information from the API every x period of time. That's why this library allows one to set which REST API call has to be done periodically, and all the responses from the server are merged into one single stream.
 
 ```Dart
 bybit.getServerTimePeriodic(period: Duration(seconds: 5));
@@ -52,7 +54,7 @@ bybit.getOpenInterestPeriodic(
 
 ### Connect to the server
 
-WARNING: At this moment, the periodic REST API call functions (all functions that end with 'Periodic') must be called *BEFORE* the `connect()` function and the WebSockets subscription functions must be called *AFTER* `connect()`. This will be changed in the next release.
+WARNING: For the moment, the periodic REST API call functions (all functions that end with 'Periodic') must be called *BEFORE* the `connect()` function and the WebSockets subscription functions must be called *AFTER* `connect()`. This will be changed in the next release.
 
 ``` Dart
 bybit.connect();
@@ -68,6 +70,8 @@ bybit.subscribeToOrderBook(depth: 25);
 ```
 
 ### Read the ByBit stream and handle the server response
+
+Note that the `bybit.stream` streams all the data from the WebSockets and periodic REST API calls.
 
 ```Dart
 StreamBuilder(
