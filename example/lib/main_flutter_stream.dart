@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:bybit/bybit.dart';
 
-/// Just a contains that shows the outputs of the ByBit websocket
+/// Just a container that shows the outputs of the ByBit stream
 class Example extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var bybit = ByBit(websocketUrl: 'wss://stream.bytick.com/realtime');
+    bybit.getServerTimePeriodic(period: Duration(seconds: 5));
+    bybit.getAnnouncementPeriodic(period: Duration(seconds: 5));
+    bybit.getOpenInterestPeriodic(
+        symbol: 'ETHUSD',
+        interval: '15min',
+        period: Duration(seconds: 2),
+        limit: 3);
     bybit.connect();
     bybit.subscribeToKlines(symbol: 'ETHUSD', interval: '1');
     bybit.subscribeToKlines(symbol: 'BTCUSD', interval: 'D');
     bybit.subscribeToOrderBook(depth: 25);
     return StreamBuilder(
-      stream: bybit.websocket.stream,
+      stream: bybit.stream,
       builder: (context, bybitResponse) {
         // Handle the bybit response here
         if (bybitResponse.hasData && bybitResponse.data != null) {

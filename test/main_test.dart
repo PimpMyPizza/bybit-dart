@@ -1,13 +1,3 @@
-import 'test_klines_subscription.dart';
-import 'test_ping.dart';
-import 'test_trades_subscription.dart';
-import 'test_orderbook_subscription.dart';
-import 'test_insurance_subscription.dart';
-import 'test_instrument_info_subscription.dart';
-import 'test_position_subscription.dart';
-import 'test_execution_subscription.dart';
-import 'test_order_subscription.dart';
-import 'test_stop_order_subscription.dart';
 import 'test_get_kline.dart';
 import 'test_get_order_book.dart';
 import 'test_get_tickers.dart';
@@ -93,18 +83,4 @@ void main() {
   testGetAssetExchangeRecords();
   testGetServerTime();
   testGetAnnouncement();
-
-  // public topics to subscribe to
-  testPing();
-  testSubscribeToKlines();
-  testSubscribeToOrderBook();
-  testsubscribeToTrades();
-  testSubscribeToInsurance();
-  testSubscribeToInstrumentInfo();
-
-  // private topics
-  testSubscribeToPosition();
-  testSubscribeToExecution();
-  testSubscribeToOrder();
-  testSubscribeToStopOrder();
 }
