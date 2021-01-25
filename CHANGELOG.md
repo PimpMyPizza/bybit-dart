@@ -1,3 +1,9 @@
+## [1.4.0]
+
+* Added parameter autoreconnect to automatically reconnect and resubscribe to the websocket topic when an unexpected WebSocket closure occurs.
+* Removed `int WebSocketTimeout` and `int restTimeout` parameters and replaced them with a `Duration timeout` parameter.
+* Minor doc changes
+
 ## [1.3.0]
 
 * Added the possibility to make periodic REST API calls.

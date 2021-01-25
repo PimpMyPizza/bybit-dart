@@ -31,17 +31,33 @@ class ByBit {
   /// Try to reconnect if the websocket closes unexpectly
   bool autoreconnect;
 
+  /// API-key
   String key;
+
+  /// API-key password
   String password;
+
+  /// WebSocket url used
   String websocketUrl;
+
+  /// Period between pings send to WebSocketServer to keep connection
   int pingPeriod;
+
+  /// I like trains
   var timeout = Duration(seconds: 60);
+
+  /// REST url used
   String restUrl;
 
+  /// Groupe the REST periodic api calls and the websocket stream into one group
   StreamGroup<Map<String, dynamic>> streamGroup;
 
+  /// Save user settings for the WebSocket in order to re-subscribe to the
+  /// wanted topics after a broken socket
   ByBitState state;
 
+  /// If true, the topic subscribed to (with the parameters) will be saved
+  /// into [state]
   var _saveState = true;
 
   /// The constructor use default parameters without api-key.
@@ -93,63 +109,19 @@ class ByBit {
     }
     if (toRestApi) {
       rest.connect();
-      streamGroup.add(rest.stream);
+      streamGroup.add(rest.streamGroup.stream);
     }
     stream = streamGroup.stream.asBroadcastStream();
     stream.listen((event) {
       if (event['error'] != null) {
         if (event['error'] == 'ws_timeout') {
           log.e('ByBitWebSocket stream timeout.');
-          //streamGroup.remove(websocket.controller.stream);
           if (autoreconnect == true) {
             log.w('Trying to reconnect with the WebSocket server');
             sleep(Duration(milliseconds: 500));
             websocket.connect();
             streamGroup.add(websocket.controller.stream);
-            // temporaly disable state saving for the reconnection
-            _saveState = false;
-            if (state.ws.isSubscribedToOrder) {
-              subscribeToOrder();
-            }
-            if (state.ws.isSubscribedToKlines) {
-              state.ws.paramKlines.forEach((param) {
-                subscribeToKlines(
-                    symbol: param.symbol, interval: param.interval);
-              });
-            }
-            if (state.ws.isSubscribedToOrderBook) {
-              state.ws.paramOrderBook.forEach((param) {
-                subscribeToOrderBook(depth: param.depth, symbol: param.symbol);
-              });
-            }
-            if (state.ws.isSubscribedToTrades) {
-              state.ws.paramTrades.forEach((param) {
-                subscribeToTrades(symbol: param.symbol);
-              });
-            }
-            if (state.ws.isSubscribedToInsurance) {
-              state.ws.paramInsurance.forEach((param) {
-                subscribeToInsurance(currency: param.currency);
-              });
-            }
-            if (state.ws.isSubscribedToInstrumentInfo) {
-              state.ws.paramInstrumentInfo.forEach((param) {
-                subscribeToInstrumentInfo(symbol: param.symbol);
-              });
-            }
-            if (state.ws.isSubscribedToPosition) {
-              subscribeToPosition();
-            }
-            if (state.ws.isSubscribedToExecution) {
-              subscribeToExecution();
-            }
-            if (state.ws.isSubscribedToStopOrder) {
-              subscribeToOrder();
-            }
-            if (state.ws.isSubscribedToOrder) {
-              subscribeToStopOrder();
-            }
-            _saveState = true;
+            reSubscribeToTopics();
           }
         } else {
           log.e('Unexpected WebSocket stream fail.');
@@ -168,6 +140,52 @@ class ByBit {
     log.i('Disconnect from Bybit.');
     websocket.disconnect();
     rest.disconnect();
+  }
+
+  void reSubscribeToTopics() {
+    // temporaly disable state saving for the reconnection
+    _saveState = false;
+    if (state.ws.isSubscribedToOrder) {
+      subscribeToOrder();
+    }
+    if (state.ws.isSubscribedToKlines) {
+      state.ws.paramKlines.forEach((param) {
+        subscribeToKlines(symbol: param.symbol, interval: param.interval);
+      });
+    }
+    if (state.ws.isSubscribedToOrderBook) {
+      state.ws.paramOrderBook.forEach((param) {
+        subscribeToOrderBook(depth: param.depth, symbol: param.symbol);
+      });
+    }
+    if (state.ws.isSubscribedToTrades) {
+      state.ws.paramTrades.forEach((param) {
+        subscribeToTrades(symbol: param.symbol);
+      });
+    }
+    if (state.ws.isSubscribedToInsurance) {
+      state.ws.paramInsurance.forEach((param) {
+        subscribeToInsurance(currency: param.currency);
+      });
+    }
+    if (state.ws.isSubscribedToInstrumentInfo) {
+      state.ws.paramInstrumentInfo.forEach((param) {
+        subscribeToInstrumentInfo(symbol: param.symbol);
+      });
+    }
+    if (state.ws.isSubscribedToPosition) {
+      subscribeToPosition();
+    }
+    if (state.ws.isSubscribedToExecution) {
+      subscribeToExecution();
+    }
+    if (state.ws.isSubscribedToStopOrder) {
+      subscribeToOrder();
+    }
+    if (state.ws.isSubscribedToOrder) {
+      subscribeToStopOrder();
+    }
+    _saveState = true;
   }
 
   /// Get the orderbook.

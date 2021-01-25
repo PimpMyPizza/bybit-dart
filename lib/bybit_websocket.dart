@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:async/async.dart';
 import 'package:bybit/logger.dart';
 import 'package:meta/meta.dart';
