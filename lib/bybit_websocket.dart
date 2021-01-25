@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:async/async.dart';
 import 'package:bybit/logger.dart';
 import 'package:meta/meta.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -21,8 +23,11 @@ class ByBitWebSocket {
   /// Your api-key password
   final String password;
 
-  /// Timeout for the requests used by bybit to prevent replay attacks.
-  final int timeout;
+  /// Timeout that triggers a reconnection.
+  Duration timeout;
+
+  /// Timer that triggers the timeout exception
+  RestartableTimer timeoutTimer;
 
   /// Ping period in seconds
   final int pingPeriod;
@@ -33,8 +38,14 @@ class ByBitWebSocket {
   /// Time that will ping the websocket server every X seconds.
   Timer pingTimer;
 
-  /// Stream that remaps the websocket stream output to json data.
-  Stream<Map<String, dynamic>> stream;
+  /// Sream controller used to remap the websocket stream output to json data.
+  StreamController<Map<String, dynamic>> controller;
+
+  /// Transformer that actually transform JSON string to Map
+  StreamTransformer<dynamic, Map<String, dynamic>> transformer;
+
+  /// Used to know if we are in a timeout state
+  bool isTimeout = false;
 
   /// Connect to the server with a WebSocket. A ping shall be send every
   /// [pingLooTimer] seconds in order to keep the connection alive.
@@ -42,14 +53,43 @@ class ByBitWebSocket {
       {this.url = 'wss://stream.bybit.com/realtime',
       this.key = '',
       this.password = '',
-      this.timeout = 1000,
+      this.timeout,
       this.pingPeriod = 30}) {
     log = LoggerSingleton();
   }
 
   /// Open a WebSocket connection to the Bybit API
   void connect() {
-    var timestamp = DateTime.now().millisecondsSinceEpoch + timeout;
+    log.d('ByBitWebSocket.connect()');
+    isTimeout = false;
+
+    timeoutTimer = RestartableTimer(timeout, () {
+      log.d('ByBitWebSocket timeoutTimer expired.');
+      isTimeout = true;
+      disconnect();
+    });
+
+    transformer = StreamTransformer<dynamic, Map<String, dynamic>>.fromHandlers(
+      handleData: (data, sink) {
+        timeoutTimer.reset();
+        sink.add(jsonDecode(data.toString()) as Map<String, dynamic>);
+      },
+      handleDone: (sink) {
+        if (isTimeout) {
+          log.d('WebSocket closed');
+          var e = <String, dynamic>{};
+          e['error'] = 'ws_timeout';
+          sink.add(e);
+        }
+      },
+      handleError: (error, stackTrace, sink) {
+        log.e('ByBitWebSocket transformer error: ' + error.toString());
+      },
+    );
+    controller = StreamController<Map<String, dynamic>>();
+
+    // +1000 is the timeout to avoir repeat attacks
+    var timestamp = DateTime.now().millisecondsSinceEpoch + 1000;
     var signature = sign(secret: password, timestamp: timestamp);
     var param = 'api_key=' +
         key +
@@ -58,9 +98,12 @@ class ByBitWebSocket {
         '&signature=' +
         signature;
     log.i('Open WebSocket on: ' + url + '?' + param);
+
     websocket = WebSocketChannel.connect(Uri.parse(url + '?' + param));
-    stream = websocket.stream
-        .map((event) => jsonDecode(event.toString()) as Map<String, dynamic>);
+    controller.addStream(
+        websocket.stream.map((value) => value).transform(transformer));
+    timeoutTimer.reset();
+
     if (pingPeriod > 0) {
       ping(); // Start ping
       pingTimer = Timer.periodic(Duration(seconds: pingPeriod), (timer) {
@@ -71,8 +114,20 @@ class ByBitWebSocket {
 
   /// Disconnect the WebSocket
   void disconnect() {
-    pingTimer.cancel();
-    websocket.sink.close(status.goingAway);
+    log.d('ByBitWebSocket.disconnect()');
+    if (pingTimer != null) {
+      pingTimer.cancel();
+    }
+    if (websocket != null) {
+      websocket.sink.close(status.goingAway);
+    } else {
+      log.e('was already disconnected');
+    }
+    pingTimer = null;
+    websocket = null;
+    controller = null;
+    transformer = null;
+    timeoutTimer = null;
   }
 
   /// Generate a signature needed for the WebSocket authentication as defined here:

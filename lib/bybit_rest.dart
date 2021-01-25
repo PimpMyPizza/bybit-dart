@@ -21,8 +21,8 @@ class ByBitRest {
   /// Your api-key password
   final String password;
 
-  /// Timeout for the requests used by bybit to prevent replay attacks.
-  final int timeout;
+  /// Timeout value
+  Duration timeout;
 
   /// For easy debugging
   LoggerSingleton log;
@@ -38,7 +38,7 @@ class ByBitRest {
       {this.url = 'https://api.bybit.com',
       this.key = '',
       this.password = '',
-      this.timeout = 1000}) {
+      this.timeout}) {
     log = LoggerSingleton();
   }
 
@@ -92,7 +92,7 @@ class ByBitRest {
       map['api_key'] = key;
       var timestamp = DateTime.now().millisecondsSinceEpoch;
       map['timestamp'] = timestamp;
-      map['recv_window'] = timeout;
+      map['recv_window'] = 1000;
       var signature = sign(secret: password, query: map);
       map['sign'] = signature;
     }
