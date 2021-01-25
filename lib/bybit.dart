@@ -43,8 +43,8 @@ class ByBit {
   /// Period between pings send to WebSocketServer to keep connection
   int pingPeriod;
 
-  /// I like trains
-  var timeout = Duration(seconds: 60);
+  /// Communication timeout value
+  Duration timeout;
 
   /// REST url used
   String restUrl;
@@ -72,7 +72,7 @@ class ByBit {
       this.password = '',
       this.restUrl = 'https://api.bybit.com',
       this.websocketUrl = 'wss://stream.bybit.com/realtime',
-      this.timeout,
+      int timeout = 60,
       this.pingPeriod = 30,
       String logLevel = 'WARNING',
       this.autoreconnect = true}) {
@@ -87,16 +87,17 @@ class ByBit {
     } else {
       Logger.level = Level.nothing;
     }
+    this.timeout = Duration(seconds: timeout);
     log = LoggerSingleton();
     state = ByBitState();
     websocket = ByBitWebSocket(
         key: key,
         password: password,
-        timeout: timeout,
+        timeout: this.timeout,
         url: websocketUrl,
         pingPeriod: pingPeriod);
-    rest =
-        ByBitRest(key: key, password: password, url: restUrl, timeout: timeout);
+    rest = ByBitRest(
+        key: key, password: password, url: restUrl, timeout: this.timeout);
   }
 
   /// Connect to the WebSocket server and/or the REST API server
