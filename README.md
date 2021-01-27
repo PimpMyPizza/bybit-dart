@@ -34,7 +34,7 @@ var bybit = ByBit(
         logLevel: 'INFO',
         restUrl: 'https://api.bybit.com',
         websocketUrl: 'wss://stream.bytick.com/realtime',
-        timeout: Duration(seconds:30),
+        timeout: 60, // in seconds
         autoreconnect: true);
 ```
 
