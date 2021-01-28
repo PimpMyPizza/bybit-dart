@@ -87,7 +87,7 @@ class ByBitWebSocket {
     );
     controller = StreamController<Map<String, dynamic>>();
 
-    // +1000 is the timeout to avoir repeat attacks
+    // +1000 is the timeout to avoid repeat attacks
     var timestamp = DateTime.now().millisecondsSinceEpoch + 1000;
     var signature = sign(secret: password, timestamp: timestamp);
     var param = 'api_key=' +
