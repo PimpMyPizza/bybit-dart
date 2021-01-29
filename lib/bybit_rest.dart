@@ -96,7 +96,7 @@ class ByBitRest {
       map['api_key'] = key;
       var timestamp = DateTime.now().millisecondsSinceEpoch;
       map['timestamp'] = timestamp;
-      map['recv_window'] = 3000;
+      map['recv_window'] = 1500;
       var signature = sign(secret: password, query: map);
       map['sign'] = signature;
     }

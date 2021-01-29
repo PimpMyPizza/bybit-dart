@@ -43,9 +43,6 @@ class ByBitWebSocket {
   /// Transformer that actually transform JSON string to Map
   StreamTransformer<dynamic, Map<String, dynamic>> transformer;
 
-  /// Used to know if we are in a timeout state
-  bool isTimeout = false;
-
   /// Connect to the server with a WebSocket. A ping shall be send every
   /// [pingLooTimer] seconds in order to keep the connection alive.
   ByBitWebSocket(
@@ -60,12 +57,10 @@ class ByBitWebSocket {
   /// Open a WebSocket connection to the Bybit API
   void connect() {
     log.d('ByBitWebSocket.connect()');
-    isTimeout = false;
 
     timeoutTimer = RestartableTimer(timeout, () {
       log.d('ByBitWebSocket timeoutTimer expired.');
-      isTimeout = true;
-      disconnect();
+      throw Exception('ByBitWebSocket timeoutTimer expired.');
     });
 
     transformer = StreamTransformer<dynamic, Map<String, dynamic>>.fromHandlers(
@@ -74,12 +69,7 @@ class ByBitWebSocket {
         sink.add(jsonDecode(data.toString()) as Map<String, dynamic>);
       },
       handleDone: (sink) {
-        if (isTimeout) {
-          log.d('WebSocket closed');
-          var e = <String, dynamic>{};
-          e['error'] = 'ws_timeout';
-          sink.add(e);
-        }
+        log.i('ByBitWebSocket : Socket closed');
       },
       handleError: (error, stackTrace, sink) {
         log.e('ByBitWebSocket transformer error: ' + error.toString());

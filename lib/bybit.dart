@@ -1,8 +1,5 @@
 library bybit;
 
-import 'dart:io';
-
-import 'package:bybit/bybit_state.dart';
 import 'package:bybit/bybit_rest.dart';
 import 'package:bybit/bybit_websocket.dart';
 import 'package:meta/meta.dart';
@@ -28,9 +25,6 @@ class ByBit {
   /// one stream output of json.
   Stream<Map<String, dynamic>> stream;
 
-  /// Try to reconnect if the websocket closes unexpectly
-  bool autoreconnect;
-
   /// API-key
   String key;
 
@@ -52,14 +46,6 @@ class ByBit {
   /// Groupe the REST periodic api calls and the websocket stream into one group
   StreamGroup<Map<String, dynamic>> streamGroup;
 
-  /// Save user settings for the WebSocket in order to re-subscribe to the
-  /// wanted topics after a broken socket
-  ByBitState state;
-
-  /// If true, the topic subscribed to (with the parameters) will be saved
-  /// into [state]
-  var _saveState = true;
-
   /// The constructor use default parameters without api-key.
   /// If you want to use all endpoints, you must provite a valid
   /// [key] and [password]. Go to https://www.bybit.com/app/user/api-management
@@ -74,8 +60,7 @@ class ByBit {
       this.websocketUrl = 'wss://stream.bybit.com/realtime',
       int timeout = 60,
       this.pingPeriod = 30,
-      String logLevel = 'WARNING',
-      this.autoreconnect = true}) {
+      String logLevel = 'WARNING'}) {
     if (logLevel == 'ERROR') {
       Logger.level = Level.error;
     } else if (logLevel == 'WARNING') {
@@ -89,7 +74,6 @@ class ByBit {
     }
     this.timeout = Duration(seconds: timeout);
     log = LoggerSingleton();
-    state = ByBitState();
     websocket = ByBitWebSocket(
         key: key,
         password: password,
@@ -113,27 +97,6 @@ class ByBit {
       streamGroup.add(rest.streamGroup.stream);
     }
     stream = streamGroup.stream.asBroadcastStream();
-    stream.listen((event) {
-      if (event['error'] != null) {
-        if (event['error'] == 'ws_timeout') {
-          log.e('ByBitWebSocket stream timeout.');
-          if (autoreconnect == true) {
-            log.w('Trying to reconnect with the WebSocket server');
-            sleep(Duration(milliseconds: 500));
-            websocket.connect();
-            streamGroup.add(websocket.controller.stream);
-            reSubscribeToTopics();
-          }
-        } else {
-          log.e('Unexpected WebSocket stream fail.');
-        }
-      }
-    }, onDone: () {
-      print('ON DONE !!!');
-    }, onError: (e) {
-      print('ON ERROR !!!' + e.toString());
-      websocket.disconnect();
-    });
   }
 
   /// Disconnect the websocket and http client
@@ -141,52 +104,6 @@ class ByBit {
     log.i('Disconnect from Bybit.');
     websocket.disconnect();
     rest.disconnect();
-  }
-
-  void reSubscribeToTopics() {
-    // temporaly disable state saving for the reconnection
-    _saveState = false;
-    if (state.ws.isSubscribedToOrder) {
-      subscribeToOrder();
-    }
-    if (state.ws.isSubscribedToKlines) {
-      state.ws.paramKlines.forEach((param) {
-        subscribeToKlines(symbol: param.symbol, interval: param.interval);
-      });
-    }
-    if (state.ws.isSubscribedToOrderBook) {
-      state.ws.paramOrderBook.forEach((param) {
-        subscribeToOrderBook(depth: param.depth, symbol: param.symbol);
-      });
-    }
-    if (state.ws.isSubscribedToTrades) {
-      state.ws.paramTrades.forEach((param) {
-        subscribeToTrades(symbol: param.symbol);
-      });
-    }
-    if (state.ws.isSubscribedToInsurance) {
-      state.ws.paramInsurance.forEach((param) {
-        subscribeToInsurance(currency: param.currency);
-      });
-    }
-    if (state.ws.isSubscribedToInstrumentInfo) {
-      state.ws.paramInstrumentInfo.forEach((param) {
-        subscribeToInstrumentInfo(symbol: param.symbol);
-      });
-    }
-    if (state.ws.isSubscribedToPosition) {
-      subscribeToPosition();
-    }
-    if (state.ws.isSubscribedToExecution) {
-      subscribeToExecution();
-    }
-    if (state.ws.isSubscribedToStopOrder) {
-      subscribeToOrder();
-    }
-    if (state.ws.isSubscribedToOrder) {
-      subscribeToStopOrder();
-    }
-    _saveState = true;
   }
 
   /// Get the orderbook.
@@ -1281,11 +1198,6 @@ class ByBit {
         symbol +
         ' and interval: ' +
         interval);
-    state.ws.isSubscribedToKlines = true;
-    if (_saveState) {
-      state.ws.paramKlines.add(
-          ByBitWebSocketKlinesParameters(symbol: symbol, interval: interval));
-    }
     websocket.subscribeTo(topic: 'klineV2', symbol: symbol, filter: interval);
   }
 
@@ -1296,11 +1208,6 @@ class ByBit {
         depth.toString() +
         ' for the symbol: ' +
         symbol);
-    state.ws.isSubscribedToOrderBook = true;
-    if (_saveState) {
-      state.ws.paramOrderBook
-          .add(ByBitWebSocketOrderBookParameters(depth: depth, symbol: symbol));
-    }
     if (depth == 25) {
       websocket.subscribeTo(
           topic: 'orderBookL2_' + depth.toString(), symbol: symbol);
@@ -1314,10 +1221,6 @@ class ByBit {
   /// https://bybit-exchange.github.io/docs/inverse/#t-websockettrade
   void subscribeToTrades({String symbol = ''}) {
     log.i('Subscribe to trades.');
-    state.ws.isSubscribedToTrades = true;
-    if (_saveState) {
-      state.ws.paramTrades.add(ByBitWebSocketTradesParameters(symbol: symbol));
-    }
     websocket.subscribeTo(topic: 'trade', symbol: symbol);
   }
 
@@ -1325,11 +1228,6 @@ class ByBit {
   /// https://bybit-exchange.github.io/docs/inverse/#t-websocketinsurance
   void subscribeToInsurance({String currency = ''}) {
     log.i('Subscribe to insurance.');
-    state.ws.isSubscribedToInsurance = true;
-    if (_saveState) {
-      state.ws.paramInsurance
-          .add(ByBitWebSocketInsuranceParameters(currency: currency));
-    }
     websocket.subscribeTo(topic: 'insurance', symbol: currency);
   }
 
@@ -1337,11 +1235,6 @@ class ByBit {
   /// https://bybit-exchange.github.io/docs/inverse/#t-websocketinstrumentinfo
   void subscribeToInstrumentInfo({@required String symbol}) {
     log.i('Subscribe to the latest symbol information.');
-    state.ws.isSubscribedToInstrumentInfo = true;
-    if (_saveState) {
-      state.ws.paramInstrumentInfo
-          .add(ByBitWebSocketInstrumentInfoParameters(symbol: symbol));
-    }
     websocket.subscribeTo(topic: 'instrument_info.100ms', symbol: symbol);
   }
 
@@ -1350,7 +1243,6 @@ class ByBit {
   /// https://bybit-exchange.github.io/docs/inverse/#t-websocketposition
   void subscribeToPosition() {
     log.i('Subscribe to position');
-    state.ws.isSubscribedToPosition = true;
     websocket.subscribeTo(topic: 'position');
   }
 
@@ -1358,7 +1250,6 @@ class ByBit {
   /// https://bybit-exchange.github.io/docs/inverse/#t-websocketexecution
   void subscribeToExecution() {
     log.i('Subscribe to execution');
-    state.ws.isSubscribedToExecution = true;
     websocket.subscribeTo(topic: 'execution');
   }
 
@@ -1366,7 +1257,6 @@ class ByBit {
   /// https://bybit-exchange.github.io/docs/inverse/#t-websocketorder
   void subscribeToOrder() {
     log.i('Subscribe to order');
-    state.ws.isSubscribedToOrder = true;
     websocket.subscribeTo(topic: 'order');
   }
 
@@ -1374,7 +1264,6 @@ class ByBit {
   /// https://bybit-exchange.github.io/docs/inverse/#t-websocketstoporder
   void subscribeToStopOrder() {
     log.i('Subscribe to stop_order');
-    state.ws.isSubscribedToStopOrder = true;
     websocket.subscribeTo(topic: 'stop_order');
   }
 }
