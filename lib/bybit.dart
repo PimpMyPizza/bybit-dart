@@ -43,6 +43,8 @@ class ByBit {
   /// REST url used
   String restUrl;
 
+  int receiveWindow;
+
   /// Groupe the REST periodic api calls and the websocket stream into one group
   StreamGroup<Map<String, dynamic>> streamGroup;
 
@@ -52,7 +54,9 @@ class ByBit {
   /// To generate your key. If you're using the websockets, a ping will be
   /// sent every [pingPeriod] seconds to the server to maintain connection.
   /// If no message is received from the Server within [timeout] seconds,
-  /// an automatic reconnection can be enabled with [autoreconnect].
+  /// an exception will be thrown. The [receiveWindow] must be
+  /// given in milliseconds and prevents replay attacks. See
+  /// https://bybit-exchange.github.io/docs/inverse/?console#t-authentication
   ByBit(
       {this.key = '',
       this.password = '',
@@ -60,6 +64,7 @@ class ByBit {
       this.websocketUrl = 'wss://stream.bybit.com/realtime',
       int timeout = 60,
       this.pingPeriod = 30,
+      this.receiveWindow = 1000,
       String logLevel = 'WARNING'}) {
     if (logLevel == 'ERROR') {
       Logger.level = Level.error;
@@ -81,7 +86,11 @@ class ByBit {
         url: websocketUrl,
         pingPeriod: pingPeriod);
     rest = ByBitRest(
-        key: key, password: password, url: restUrl, timeout: this.timeout);
+        key: key,
+        password: password,
+        url: restUrl,
+        timeout: this.timeout,
+        receiveWindow: receiveWindow);
   }
 
   /// Connect to the WebSocket server and/or the REST API server

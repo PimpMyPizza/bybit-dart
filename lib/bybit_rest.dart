@@ -25,6 +25,10 @@ class ByBitRest {
   /// Timeout value
   Duration timeout;
 
+  /// Receive window in milliseconds. See
+  /// https://bybit-exchange.github.io/docs/inverse/?console#t-authentication
+  int receiveWindow;
+
   /// For easy debugging
   LoggerSingleton log;
 
@@ -35,12 +39,15 @@ class ByBitRest {
   /// merged together into one stream when the connect() function is called
   var streamList = <Stream<Map<String, dynamic>>>[];
 
-  /// Constructor yolo swag
+  /// Constructor of the REST API communication. The [receiveWindow] must be
+  /// given in milliseconds and prevents replay attacks. See
+  /// https://bybit-exchange.github.io/docs/inverse/?console#t-authentication
   ByBitRest(
       {this.url = 'https://api.bybit.com',
       this.key = '',
       this.password = '',
-      this.timeout}) {
+      this.timeout,
+      this.receiveWindow = 1000}) {
     log = LoggerSingleton();
   }
 
@@ -96,7 +103,7 @@ class ByBitRest {
       map['api_key'] = key;
       var timestamp = DateTime.now().millisecondsSinceEpoch;
       map['timestamp'] = timestamp;
-      map['recv_window'] = 1500;
+      map['recv_window'] = receiveWindow;
       var signature = sign(secret: password, query: map);
       map['sign'] = signature;
     }
