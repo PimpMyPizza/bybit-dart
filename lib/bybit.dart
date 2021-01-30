@@ -62,7 +62,7 @@ class ByBit {
       this.password = '',
       this.restUrl = 'https://api.bybit.com',
       this.websocketUrl = 'wss://stream.bybit.com/realtime',
-      int timeout = 60,
+      int timeout = -1,
       this.pingPeriod = 30,
       this.receiveWindow = 1000,
       String logLevel = 'WARNING'}) {
@@ -77,7 +77,11 @@ class ByBit {
     } else {
       Logger.level = Level.nothing;
     }
-    this.timeout = Duration(seconds: timeout);
+    if (timeout > 0) {
+      this.timeout = Duration(seconds: timeout);
+    } else {
+      this.timeout = Duration(days: 999999);
+    }
     log = LoggerSingleton();
     websocket = ByBitWebSocket(
         key: key,

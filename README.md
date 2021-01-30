@@ -34,8 +34,10 @@ var bybit = ByBit(
     logLevel: 'INFO',
     restUrl: 'https://api.bybit.com',
     websocketUrl: 'wss://stream.bytick.com/realtime',
-    timeout: 60); // in seconds
+    timeout: 60);
 ```
+
+Note also that the timeout is given in seconds. If no timeout is given as parameter, no exception will be thrown on timeout.
 
 ### Connect to the servers
 
