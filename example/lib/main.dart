@@ -12,6 +12,8 @@ Future<void> readWebSocket(Stream<dynamic> stream, int count) async {
 
 void main() async {
   var bybit = ByBit(logLevel: 'INFO');
+  // Connect to the Server
+  bybit.connect();
 
   // Define REST API calls that we want to make periodically
   bybit.getServerTimePeriodic(period: Duration(seconds: 5));
@@ -21,9 +23,6 @@ void main() async {
       interval: '15min',
       period: Duration(seconds: 2),
       limit: 3);
-
-  // Connect to the Server
-  bybit.connect();
 
   // Subscribe to WebSockets channels
   bybit.subscribeToKlines(symbol: 'BTCUSD', interval: 'D');

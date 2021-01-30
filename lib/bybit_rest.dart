@@ -9,6 +9,7 @@ import 'package:async/async.dart' show StreamGroup;
 
 class ByBitRest {
   /// HTTP client that is used for the bybit communication over the REST API
+  /// todo: not used atm but I should!
   http.Client client;
 
   /// Url to use for the REST requests. List of all entpoints at:
@@ -21,24 +22,32 @@ class ByBitRest {
   /// Your api-key password
   final String password;
 
-  /// Timeout for the requests used by bybit to prevent replay attacks.
-  final int timeout;
+  /// Timeout value
+  Duration timeout;
+
+  /// Receive window in milliseconds. See
+  /// https://bybit-exchange.github.io/docs/inverse/?console#t-authentication
+  int receiveWindow;
 
   /// For easy debugging
   LoggerSingleton log;
 
-  Stream<Map<String, dynamic>> stream;
+  /// Group all periodic REST calls stream
+  StreamGroup<Map<String, dynamic>> streamGroup;
 
   /// Contains a list of periodic REST calls streams. These streams are
   /// merged together into one stream when the connect() function is called
   var streamList = <Stream<Map<String, dynamic>>>[];
 
-  /// Constructor yolo swag
+  /// Constructor of the REST API communication. The [receiveWindow] must be
+  /// given in milliseconds and prevents replay attacks. See
+  /// https://bybit-exchange.github.io/docs/inverse/?console#t-authentication
   ByBitRest(
       {this.url = 'https://api.bybit.com',
       this.key = '',
       this.password = '',
-      this.timeout = 1000}) {
+      this.timeout,
+      this.receiveWindow = 1000}) {
     log = LoggerSingleton();
   }
 
@@ -46,14 +55,16 @@ class ByBitRest {
   bool connect() {
     if (client != null) client.close();
     client = http.Client();
-    stream = StreamGroup.merge(streamList);
+    streamGroup = StreamGroup();
     return true;
   }
 
   /// Disconnect the HTTP client
   void disconnect() {
     client.close();
-    streamList.clear();
+    streamGroup.close();
+    client = null;
+    streamGroup = null;
   }
 
   /// Generate a signature needed for the REST authentication as defined here:
@@ -92,7 +103,7 @@ class ByBitRest {
       map['api_key'] = key;
       var timestamp = DateTime.now().millisecondsSinceEpoch;
       map['timestamp'] = timestamp;
-      map['recv_window'] = timeout;
+      map['recv_window'] = receiveWindow;
       var signature = sign(secret: password, query: map);
       map['sign'] = signature;
     }
@@ -160,7 +171,7 @@ class ByBitRest {
   void getOrderBookPeriodic(
       {@required String symbol, @required Duration period}) {
     log.d('ByBitRest.getOrderBookPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getOrderBook(symbol: symbol);
     }).asyncMap((event) async => await event));
   }
@@ -171,7 +182,7 @@ class ByBitRest {
       @required String interval,
       @required int from,
       int limit = -1}) async {
-    log.d('ByBitRest.getKLine ' + symbol);
+    log.d('ByBitRest.getKLine ${symbol}');
     var parameters = <String, dynamic>{};
     parameters['symbol'] = symbol;
     parameters['interval'] = interval;
@@ -188,9 +199,9 @@ class ByBitRest {
       @required String interval,
       @required int from,
       int limit = -1,
-      Duration period}) async {
-    log.d('ByBitRest.getKLinePeriodic ' + symbol);
-    streamList.add(Stream.periodic(period, (_) {
+      Duration period}) {
+    log.d('ByBitRest.getKLinePeriodic ${symbol}');
+    streamGroup.add(Stream.periodic(period, (_) {
       return getKLine(
           symbol: symbol, interval: interval, from: from, limit: limit);
     }).asyncMap((event) async => await event));
@@ -210,7 +221,7 @@ class ByBitRest {
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-latestsymbolinfo
   void getTickersPeriodic({String symbol, @required Duration period}) {
     log.d('ByBitRest.getTickersPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getTickers(symbol: symbol);
     }).asyncMap((event) async => await event));
   }
@@ -246,7 +257,7 @@ class ByBitRest {
       int limit,
       @required Duration period}) {
     log.d('ByBitRest.getTradingRecordsPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getTradingRecords(symbol: symbol, from: from, limit: limit);
     }).asyncMap((event) async => await event));
   }
@@ -262,7 +273,7 @@ class ByBitRest {
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-querysymbol
   void getSymbolsInfoPeriodic({@required Duration period}) {
     log.d('ByBitRest.getSymbolsInfoPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getSymbolsInfo();
     }).asyncMap((event) async => await event));
   }
@@ -304,7 +315,7 @@ class ByBitRest {
       int endTime,
       Duration period}) {
     log.d('ByBitRest.getLiquidatedOrdersPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getLiquidatedOrders(
           symbol: symbol,
           from: from,
@@ -344,7 +355,7 @@ class ByBitRest {
       int limit,
       Duration period}) {
     log.d('ByBitRest.getMarkPriceKLinePeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getMarkPriceKLine(
           symbol: symbol, interval: interval, from: from, limit: limit);
     }).asyncMap((event) async => await event));
@@ -380,7 +391,7 @@ class ByBitRest {
       int limit,
       Duration period}) {
     log.d('ByBitRest.getOpenInterestPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getOpenInterest(symbol: symbol, interval: interval, limit: limit);
     }).asyncMap((event) async => await event));
   }
@@ -409,7 +420,7 @@ class ByBitRest {
   void getLatestBigDealsPeriodic(
       {@required String symbol, int limit, @required Duration period}) {
     log.d('ByBitRest.getLatestBigDealsPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getLatestBigDeals(symbol: symbol, limit: limit);
     }).asyncMap((event) async => await event));
   }
@@ -441,7 +452,7 @@ class ByBitRest {
       int limit,
       Duration period}) {
     log.d('ByBitRest.getLongShortRatioPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getLongShortRatio(
           symbol: symbol, interval: interval, limit: limit);
     }).asyncMap((event) async => await event));
@@ -497,7 +508,7 @@ class ByBitRest {
       String orderLinkId,
       Duration period}) {
     log.d('ByBitRest.placeActiveOrderPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return placeActiveOrder(
           symbol: symbol,
           side: side,
@@ -545,7 +556,7 @@ class ByBitRest {
       String cursor,
       Duration period}) {
     log.d('ByBitRest.getActiveOrderPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getActiveOrder(
           symbol: symbol,
           orderStatus: orderStatus,
@@ -579,7 +590,7 @@ class ByBitRest {
       String orderLinkId,
       Duration period}) {
     log.d('ByBitRest.cancelActiveOrderPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return cancelActiveOrder(
           symbol: symbol, orderId: orderId, orderLinkId: orderLinkId);
     }).asyncMap((event) async => await event));
@@ -606,7 +617,7 @@ class ByBitRest {
   void cancelAllActiveOrdersPeriodic(
       {@required String symbol, @required Duration period}) {
     log.d('ByBitRest.cancelAllActiveOrdersPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return cancelAllActiveOrders(symbol: symbol);
     }).asyncMap((event) async => await event));
   }
@@ -647,7 +658,7 @@ class ByBitRest {
       double newOrderPrice,
       Duration period}) {
     log.d('ByBitRest.updateActiveOrderPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return updateActiveOrder(
           symbol: symbol,
           orderId: orderId,
@@ -681,7 +692,7 @@ class ByBitRest {
       String orderLinkId,
       Duration period}) {
     log.d('ByBitRest.getRealTimeActiveOrderPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getRealTimeActiveOrder(
           symbol: symbol, orderId: orderId, orderLinkId: orderLinkId);
     }).asyncMap((event) async => await event));
@@ -737,7 +748,7 @@ class ByBitRest {
       String orderLinkId,
       Duration period}) {
     log.d('ByBitRest.placeConditionalOrderPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return placeConditionalOrder(
           symbol: symbol,
           side: side,
@@ -787,7 +798,7 @@ class ByBitRest {
       String cursor,
       Duration period}) {
     log.d('ByBitRest.getConditionalOrdersPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getConditionalOrders(
           symbol: symbol,
           stopOrderStatus: stopOrderStatus,
@@ -821,7 +832,7 @@ class ByBitRest {
       String orderLinkId,
       Duration period}) {
     log.d('ByBitRest.cancelConditionalOrderPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return cancelConditionalOrder(
           symbol: symbol, orderId: orderId, orderLinkId: orderLinkId);
     }).asyncMap((event) async => await event));
@@ -846,7 +857,7 @@ class ByBitRest {
   void cancelAllConditionalOrdersPeriodic(
       {@required String symbol, @required Duration period}) {
     log.d('ByBitRest.cancelAllConditionalOrdersPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return cancelAllConditionalOrders(symbol: symbol);
     }).asyncMap((event) async => await event));
   }
@@ -892,7 +903,7 @@ class ByBitRest {
       double newTriggerPrice,
       Duration period}) {
     log.d('ByBitRest.updateConditionalOrderPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return updateConditionalOrder(
           symbol: symbol,
           stopOrderId: stopOrderId,
@@ -927,7 +938,7 @@ class ByBitRest {
       String orderLinkId,
       Duration period}) {
     log.d('ByBitRest.getConditionalOrderPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getConditionalOrder(
           symbol: symbol, stopOrderId: stopOrderId, orderLinkId: orderLinkId);
     }).asyncMap((event) async => await event));
@@ -950,7 +961,7 @@ class ByBitRest {
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-myposition
   void getPositionPeriodic({String symbol, @required Duration period}) {
     log.d('ByBitRest.getPositionPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getPosition(symbol: symbol);
     }).asyncMap((event) async => await event));
   }
@@ -977,7 +988,7 @@ class ByBitRest {
       @required double margin,
       @required Duration period}) {
     log.d('ByBitRest.setMarginPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return setMargin(symbol: symbol, margin: margin);
     }).asyncMap((event) async => await event));
   }
@@ -1022,7 +1033,7 @@ class ByBitRest {
       double newTrailingTriggerPrice,
       Duration period}) {
     log.d('ByBitRest.setTradingStopPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return setTradingStop(
           symbol: symbol,
           takeProfit: takeProfit,
@@ -1056,7 +1067,7 @@ class ByBitRest {
       @required double leverage,
       @required Duration period}) {
     log.d('ByBitRest.setLeveragePeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return setLeverage(symbol: symbol, leverage: leverage);
     }).asyncMap((event) async => await event));
   }
@@ -1096,7 +1107,7 @@ class ByBitRest {
       String order,
       Duration period}) {
     log.d('ByBitRest.getUserTradingRecordsPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getUserTradingRecords(
           symbol: symbol,
           orderId: orderId,
@@ -1142,7 +1153,7 @@ class ByBitRest {
       int limit,
       Duration period}) {
     log.d('ByBitRest.getUserClosedProfitPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getUserClosedProfit(
           symbol: symbol,
           startTime: startTime,
@@ -1167,7 +1178,7 @@ class ByBitRest {
   /// https://bybit-exchange.github.io/docs/inverse/#t-risklimit
   void getRiskLimitPeriodic({@required Duration period}) {
     log.d('ByBitRest.getRiskLimitPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getRiskLimit();
     }).asyncMap((event) async => await event));
   }
@@ -1194,7 +1205,7 @@ class ByBitRest {
       @required int riskId,
       @required Duration period}) {
     log.d('ByBitRest.setRiskLimitPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return setRiskLimit(symbol: symbol, riskId: riskId);
     }).asyncMap((event) async => await event));
   }
@@ -1217,7 +1228,7 @@ class ByBitRest {
   void getFundingRatePeriodic(
       {@required String symbol, @required Duration period}) {
     log.d('ByBitRest.getFundingRatePeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getFundingRate(symbol: symbol);
     }).asyncMap((event) async => await event));
   }
@@ -1241,7 +1252,7 @@ class ByBitRest {
   void getPreviousFundingFeePeriodic(
       {@required String symbol, @required Duration period}) {
     log.d('ByBitRest.getPreviousFundingFeePeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getPreviousFundingFee(symbol: symbol);
     }).asyncMap((event) async => await event));
   }
@@ -1265,7 +1276,7 @@ class ByBitRest {
   void getPredictedFundingRateAndFundingFeePeriodic(
       {@required String symbol, @required Duration period}) {
     log.d('ByBitRest.getPredictedFundingRateAndFundingFeePeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getPredictedFundingRateAndFundingFee(symbol: symbol);
     }).asyncMap((event) async => await event));
   }
@@ -1284,7 +1295,7 @@ class ByBitRest {
   /// https://bybit-exchange.github.io/docs/inverse/#t-key
   void getApiKeyInfoPeriodic({@required Duration period}) {
     log.d('ByBitRest.getApiKeyInfoPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getApiKeyInfo();
     }).asyncMap((event) async => await event));
   }
@@ -1307,7 +1318,7 @@ class ByBitRest {
   void getUserLCPPeriodic(
       {@required String symbol, @required Duration period}) {
     log.d('ByBitRest.getUserLCPPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getUserLCP(symbol: symbol);
     }).asyncMap((event) async => await event));
   }
@@ -1329,7 +1340,7 @@ class ByBitRest {
   /// https://bybit-exchange.github.io/docs/inverse/#t-wallet
   void getWalletBalancePeriodic({String currency, @required Duration period}) {
     log.d('ByBitRest.getWalletBalancePeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getWalletBalance(currency: currency);
     }).asyncMap((event) async => await event));
   }
@@ -1372,7 +1383,7 @@ class ByBitRest {
       int limit,
       @required Duration period}) {
     log.d('ByBitRest.getWalletFundRecordsPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getWalletFundRecords(
           currency: currency,
           startTimestamp: startTimestamp,
@@ -1420,7 +1431,7 @@ class ByBitRest {
       int limit,
       @required Duration period}) {
     log.d('ByBitRest.getWithdrawalRecordsPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getWithdrawalRecords(
           currency: currency,
           startTimestamp: startTimestamp,
@@ -1452,7 +1463,7 @@ class ByBitRest {
   void getAssetExchangeRecordsPeriodic(
       {String direction, int from, int limit, @required Duration period}) {
     log.d('ByBitRest.getAssetExchangeRecordsPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getAssetExchangeRecords(
           direction: direction, from: from, limit: limit);
     }).asyncMap((event) async => await event));
@@ -1470,7 +1481,7 @@ class ByBitRest {
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-servertime
   void getServerTimePeriodic({@required Duration period}) {
     log.d('ByBitRest.getServerTimePeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getServerTime();
     }).asyncMap((event) async => await event));
   }
@@ -1487,7 +1498,7 @@ class ByBitRest {
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-announcement
   void getAnnouncementPeriodic({@required Duration period}) {
     log.d('ByBitRest.getAnnouncementPeriodic');
-    streamList.add(Stream.periodic(period, (_) {
+    streamGroup.add(Stream.periodic(period, (_) {
       return getAnnouncement();
     }).asyncMap((event) async => await event));
   }

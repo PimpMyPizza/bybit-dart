@@ -25,19 +25,46 @@ class ByBit {
   /// one stream output of json.
   Stream<Map<String, dynamic>> stream;
 
+  /// API-key
+  String key;
+
+  /// API-key password
+  String password;
+
+  /// WebSocket url used
+  String websocketUrl;
+
+  /// Period between pings send to WebSocketServer to keep connection
+  int pingPeriod;
+
+  /// Communication timeout value
+  Duration timeout;
+
+  /// REST url used
+  String restUrl;
+
+  int receiveWindow;
+
+  /// Groupe the REST periodic api calls and the websocket stream into one group
+  StreamGroup<Map<String, dynamic>> streamGroup;
+
   /// The constructor use default parameters without api-key.
   /// If you want to use all endpoints, you must provite a valid
   /// [key] and [password]. Go to https://www.bybit.com/app/user/api-management
   /// To generate your key. If you're using the websockets, a ping will be
-  /// sent every [pingPeriod] seconds to the server to maintain connection
+  /// sent every [pingPeriod] seconds to the server to maintain connection.
+  /// If no message is received from the Server within [timeout] seconds,
+  /// an exception will be thrown. The [receiveWindow] must be
+  /// given in milliseconds and prevents replay attacks. See
+  /// https://bybit-exchange.github.io/docs/inverse/?console#t-authentication
   ByBit(
-      {String key = '',
-      String password = '',
-      String restUrl = 'https://api.bybit.com',
-      int restTimeout = 3000,
-      String websocketUrl = 'wss://stream.bybit.com/realtime',
-      int websocketTimeout = 1000,
-      int pingPeriod = 30,
+      {this.key = '',
+      this.password = '',
+      this.restUrl = 'https://api.bybit.com',
+      this.websocketUrl = 'wss://stream.bybit.com/realtime',
+      int timeout = 60,
+      this.pingPeriod = 30,
+      this.receiveWindow = 1000,
       String logLevel = 'WARNING'}) {
     if (logLevel == 'ERROR') {
       Logger.level = Level.error;
@@ -50,23 +77,35 @@ class ByBit {
     } else {
       Logger.level = Level.nothing;
     }
+    this.timeout = Duration(seconds: timeout);
     log = LoggerSingleton();
     websocket = ByBitWebSocket(
         key: key,
         password: password,
-        timeout: websocketTimeout,
+        timeout: this.timeout,
         url: websocketUrl,
         pingPeriod: pingPeriod);
     rest = ByBitRest(
-        key: key, password: password, url: restUrl, timeout: restTimeout);
+        key: key,
+        password: password,
+        url: restUrl,
+        timeout: this.timeout,
+        receiveWindow: receiveWindow);
   }
 
   /// Connect to the WebSocket server and/or the REST API server
   void connect({bool toWebSocket = true, bool toRestApi = true}) {
     log.i('Connect to Bybit.');
-    if (toWebSocket) websocket.connect();
-    if (toRestApi) rest.connect();
-    stream = StreamGroup.merge([websocket.stream, rest.stream]);
+    streamGroup = StreamGroup();
+    if (toWebSocket) {
+      websocket.connect();
+      streamGroup.add(websocket.controller.stream);
+    }
+    if (toRestApi) {
+      rest.connect();
+      streamGroup.add(rest.streamGroup.stream);
+    }
+    stream = streamGroup.stream.asBroadcastStream();
   }
 
   /// Disconnect the websocket and http client

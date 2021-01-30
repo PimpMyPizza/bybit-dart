@@ -6,6 +6,7 @@ class Example extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var bybit = ByBit(websocketUrl: 'wss://stream.bytick.com/realtime');
+    bybit.connect();
     bybit.getServerTimePeriodic(period: Duration(seconds: 5));
     bybit.getAnnouncementPeriodic(period: Duration(seconds: 5));
     bybit.getOpenInterestPeriodic(
@@ -13,7 +14,6 @@ class Example extends StatelessWidget {
         interval: '15min',
         period: Duration(seconds: 2),
         limit: 3);
-    bybit.connect();
     bybit.subscribeToKlines(symbol: 'ETHUSD', interval: '1');
     bybit.subscribeToKlines(symbol: 'BTCUSD', interval: 'D');
     bybit.subscribeToOrderBook(depth: 25);

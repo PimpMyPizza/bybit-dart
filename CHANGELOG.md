@@ -1,3 +1,9 @@
+## [1.4.0]
+
+* Removed `int WebSocketTimeout` and `int restTimeout` parameters and replaced them with an `int timeout` parameter.
+* Added possibility to set a `receiveWindow` parameter that prevents from replay attacks
+* Minor doc changes
+
 ## [1.3.0]
 
 * Added the possibility to make periodic REST API calls.
