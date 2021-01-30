@@ -25,7 +25,7 @@ ByBit is a [Dart](https://dart.dev/) library for an easy communication with the 
 
 ### Create a ByBit instance
 
-Note that all the parameters are optional, but you need a valid key and password to access private topics from bybit. You can create your own api-key [on the bybit website](https://www.bybit.com/app/user/api-management). Note the autoreconnect parameter that allows you to automatically reconnect on WebSockets errors due to IP change for example.
+Note that all the parameters are optional, but you need a valid key and password to access private topics from bybit. You can create your own api-key [on the bybit website](https://www.bybit.com/app/user/api-management).
 
 ``` Dart
 var bybit = ByBit(
@@ -34,8 +34,7 @@ var bybit = ByBit(
         logLevel: 'INFO',
         restUrl: 'https://api.bybit.com',
         websocketUrl: 'wss://stream.bytick.com/realtime',
-        timeout: 60, // in seconds
-        autoreconnect: true);
+        timeout: 60 // in seconds);
 ```
 
 ### Connect to the servers
