@@ -1,3 +1,7 @@
+## [1.4.1]
+
+* Minor typos corrections and bugfixes
+
 ## [1.4.0]
 
 * Removed `int WebSocketTimeout` and `int restTimeout` parameters and replaced them with an `int timeout` parameter.
