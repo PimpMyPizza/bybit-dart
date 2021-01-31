@@ -29,13 +29,15 @@ Note that all the parameters are optional, but you need a valid key and password
 
 ``` Dart
 var bybit = ByBit(
-        key: 'yOuRsUpErKey',
-        password: 'yOuRsUpErPaSsWoRd',
-        logLevel: 'INFO',
-        restUrl: 'https://api.bybit.com',
-        websocketUrl: 'wss://stream.bytick.com/realtime',
-        timeout: 60 // in seconds);
+    key: 'yOuRsUpErKey',
+    password: 'yOuRsUpErPaSsWoRd',
+    logLevel: 'INFO',
+    restUrl: 'https://api.bybit.com',
+    websocketUrl: 'wss://stream.bytick.com/realtime',
+    timeout: 60);
 ```
+
+Note also that the timeout is given in seconds. If no timeout is given as parameter, no exception will be thrown on timeout.
 
 ### Connect to the servers
 
@@ -75,8 +77,8 @@ Note that the `bybit.stream` streams all the data from the WebSockets and period
 StreamBuilder(
     stream: bybit.stream,
     builder: (context, bybitResponse) {
-          print('From WebSocket: ' + bybitResponse.data.toString());
-          //...
+        print('From WebSocket: ' + bybitResponse.data.toString());
+        //...
     }
 ),
 //...
