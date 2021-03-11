@@ -130,7 +130,8 @@ class ByBitRest {
       query += '}';
       log.d(
           'ByBitRest.POST ' + finalUrl + ' ' + header.toString() + ' ' + query);
-      response = await http.post(finalUrl, headers: header, body: query);
+      response =
+          await http.post(Uri.parse(finalUrl), headers: header, body: query);
       if (response.statusCode != 200) {
         log.e('HTTP response status code: ' + response.statusCode.toString());
       }
@@ -145,7 +146,7 @@ class ByBitRest {
       if (map.isNotEmpty) params = params.substring(0, params.length - 1);
       var finalUrl = url + path + params;
       log.d('ByBitRest.GET ' + finalUrl);
-      response = await http.get(finalUrl, headers: header);
+      response = await http.get(Uri.parse(finalUrl), headers: header);
       if (response.statusCode != 200) {
         log.e('HTTP response status code: ' + response.statusCode.toString());
       }
