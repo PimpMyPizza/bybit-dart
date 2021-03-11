@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:async/async.dart';
 import 'package:bybit/logger.dart';
-import 'package:meta/meta.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'package:crypto/crypto.dart';
@@ -9,7 +8,7 @@ import 'dart:convert';
 
 class ByBitWebSocket {
   /// WebSocket that is used for the bybit communication
-  WebSocketChannel websocket;
+  WebSocketChannel? websocket;
 
   /// Url to use for the WebSocket connection
   /// See https://bybit-exchange.github.io/docs/inverse/#t-websocket
@@ -23,25 +22,25 @@ class ByBitWebSocket {
   final String password;
 
   /// Timeout that triggers a reconnection.
-  Duration timeout;
+  Duration? timeout;
 
   /// Timer that triggers the timeout exception
-  RestartableTimer timeoutTimer;
+  RestartableTimer? timeoutTimer;
 
   /// Ping period in seconds
   final int pingPeriod;
 
   /// For easy debugging
-  LoggerSingleton log;
+  late LoggerSingleton log;
 
   /// Time that will ping the websocket server every X seconds.
-  Timer pingTimer;
+  Timer? pingTimer;
 
   /// Sream controller used to remap the websocket stream output to json data.
-  StreamController<Map<String, dynamic>> controller;
+  StreamController<Map<String, dynamic>?>? controller;
 
   /// Transformer that actually transform JSON string to Map
-  StreamTransformer<dynamic, Map<String, dynamic>> transformer;
+  StreamTransformer<dynamic, Map<String, dynamic>?>? transformer;
 
   /// Connect to the server with a WebSocket. A ping shall be send every
   /// [pingLooTimer] seconds in order to keep the connection alive.
@@ -58,15 +57,16 @@ class ByBitWebSocket {
   void connect() {
     log.d('ByBitWebSocket.connect()');
 
-    timeoutTimer = RestartableTimer(timeout, () {
+    timeoutTimer = RestartableTimer(timeout!, () {
       log.d('ByBitWebSocket timeoutTimer expired.');
       throw Exception('ByBitWebSocket timeoutTimer expired.');
     });
 
-    transformer = StreamTransformer<dynamic, Map<String, dynamic>>.fromHandlers(
+    transformer =
+        StreamTransformer<dynamic, Map<String, dynamic>?>.fromHandlers(
       handleData: (data, sink) {
-        timeoutTimer.reset();
-        sink.add(jsonDecode(data.toString()) as Map<String, dynamic>);
+        timeoutTimer!.reset();
+        sink.add(jsonDecode(data.toString()) as Map<String, dynamic>?);
       },
       handleDone: (sink) {
         log.i('ByBitWebSocket : Socket closed');
@@ -75,7 +75,7 @@ class ByBitWebSocket {
         log.e('ByBitWebSocket transformer error: ' + error.toString());
       },
     );
-    controller = StreamController<Map<String, dynamic>>();
+    controller = StreamController<Map<String, dynamic>?>();
 
     // +1000 is the timeout to avoid repeat attacks
     var timestamp = DateTime.now().millisecondsSinceEpoch + 1000;
@@ -89,9 +89,9 @@ class ByBitWebSocket {
     log.i('Open WebSocket on: ' + url + '?' + param);
 
     websocket = WebSocketChannel.connect(Uri.parse(url + '?' + param));
-    controller.addStream(
-        websocket.stream.map((value) => value).transform(transformer));
-    timeoutTimer.reset();
+    controller!.addStream(
+        websocket!.stream.map((value) => value).transform(transformer!));
+    timeoutTimer!.reset();
 
     if (pingPeriod > 0) {
       ping(); // Start ping
@@ -105,10 +105,10 @@ class ByBitWebSocket {
   void disconnect() {
     log.d('ByBitWebSocket.disconnect()');
     if (pingTimer != null) {
-      pingTimer.cancel();
+      pingTimer!.cancel();
     }
     if (websocket != null) {
-      websocket.sink.close(status.goingAway);
+      websocket!.sink.close(status.goingAway);
     } else {
       log.e('was already disconnected');
     }
@@ -121,7 +121,7 @@ class ByBitWebSocket {
 
   /// Generate a signature needed for the WebSocket authentication as defined here:
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-websocketauthentication
-  String sign({@required String secret, @required int timestamp}) {
+  String sign({required String secret, required int timestamp}) {
     var msg = utf8.encode('GET/realtime' + timestamp.toString());
     var key = utf8.encode(secret);
     var hmac = Hmac(sha256, key);
@@ -129,23 +129,23 @@ class ByBitWebSocket {
   }
 
   /// Send a command ([op]) and optional arguments to Bybit over the websocket
-  void request({@required String op, List<String> args}) {
+  void request({required String op, List<String>? args}) {
     var cmd = '{"op":"$op"';
     if (args != null && args != []) {
       cmd = cmd + ',"args": ["' + args.join('.') + '"]';
     }
     cmd += '}';
     log.d('send command ' + cmd);
-    websocket.sink.add(cmd);
+    websocket!.sink.add(cmd);
   }
 
   /// send a subscribtion request to a specific [topic] to Bybit
   void subscribeTo(
-      {@required String topic, String symbol = '', String filter = ''}) {
+      {required String topic, String symbol = '', String filter = ''}) {
     var args = <String>[];
     args.add(topic);
-    if (filter != null && filter != '') args.add(filter);
-    if (symbol != null && symbol != '') args.add(symbol);
+    if (filter != '') args.add(filter);
+    if (symbol != '') args.add(symbol);
     request(op: 'subscribe', args: args);
   }
 
