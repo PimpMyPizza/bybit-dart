@@ -1,5 +1,6 @@
-## [1.4.1]
+## [2.0.0]
 
+* Null safety
 * Minor typos corrections and bugfixes
 
 ## [1.4.0]
