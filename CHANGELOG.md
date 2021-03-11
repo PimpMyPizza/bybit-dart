@@ -1,4 +1,4 @@
-## [2.0.0]
+## [2.0.0-nullsafety.2]
 
 * Null safety
 * Minor typos corrections and bugfixes
