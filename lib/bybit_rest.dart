@@ -182,7 +182,7 @@ class ByBitRest {
       @required String interval,
       @required int from,
       int limit = -1}) async {
-    log.d('ByBitRest.getKLine ${symbol}');
+    log.d('ByBitRest.getKLine $symbol');
     var parameters = <String, dynamic>{};
     parameters['symbol'] = symbol;
     parameters['interval'] = interval;
@@ -200,7 +200,7 @@ class ByBitRest {
       @required int from,
       int limit = -1,
       Duration period}) {
-    log.d('ByBitRest.getKLinePeriodic ${symbol}');
+    log.d('ByBitRest.getKLinePeriodic $symbol');
     streamGroup.add(Stream.periodic(period, (_) {
       return getKLine(
           symbol: symbol, interval: interval, from: from, limit: limit);
