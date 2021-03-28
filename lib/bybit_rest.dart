@@ -628,7 +628,7 @@ class ByBitRest {
       {required String symbol,
       String? orderId,
       String? orderLinkId,
-      double? newOrderQuantity,
+      int? newOrderQuantity,
       double? newOrderPrice}) async {
     log.d('ByBitRest.updateActiveOrder');
     var parameters = <String, dynamic>{};
@@ -654,7 +654,7 @@ class ByBitRest {
       {required String symbol,
       String? orderId,
       String? orderLinkId,
-      double? newOrderQuantity,
+      int? newOrderQuantity,
       double? newOrderPrice,
       required Duration period}) {
     log.d('ByBitRest.updateActiveOrderPeriodic');

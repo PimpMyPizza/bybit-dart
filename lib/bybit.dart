@@ -518,7 +518,7 @@ class ByBit {
       {required String symbol,
       String? orderId,
       String? orderLinkId,
-      double? newOrderQuantity,
+      int? newOrderQuantity,
       double? newOrderPrice}) async {
     log.i('Replace/update active order.');
     return await rest.updateActiveOrder(
@@ -535,7 +535,7 @@ class ByBit {
       {required String symbol,
       String? orderId,
       String? orderLinkId,
-      double? newOrderQuantity,
+      int? newOrderQuantity,
       double? newOrderPrice,
       required Duration period}) {
     log.i('Replace/update active order periodically.');
