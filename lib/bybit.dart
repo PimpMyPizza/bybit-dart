@@ -583,7 +583,7 @@ class ByBit {
       required double basePrice,
       required double triggerPrice,
       required String timeInForce,
-      required String triggerBy,
+      String? triggerBy,
       bool? closeOnTrigger,
       String? orderLinkId}) async {
     log.i('Place conditional Order.');
@@ -612,7 +612,7 @@ class ByBit {
       required double basePrice,
       required double triggerPrice,
       required String timeInForce,
-      required String triggerBy,
+      String? triggerBy,
       bool? closeOnTrigger,
       String? orderLinkId,
       required Duration period}) {

@@ -709,7 +709,7 @@ class ByBitRest {
       required double basePrice,
       required double triggerPrice,
       required String timeInForce,
-      required String triggerBy,
+      String? triggerBy,
       bool? closeOnTrigger,
       String? orderLinkId}) async {
     log.d('ByBitRest.placeConditionalOrder');
@@ -743,7 +743,7 @@ class ByBitRest {
       required double basePrice,
       required double triggerPrice,
       required String timeInForce,
-      required String triggerBy,
+      String? triggerBy,
       bool? closeOnTrigger,
       String? orderLinkId,
       required Duration period}) {
