@@ -815,7 +815,7 @@ class ByBitRest {
     log.d('ByBitRest.cancelConditionalOrder');
     var parameters = <String, dynamic>{};
     parameters['symbol'] = symbol;
-    if (orderId != null) parameters['order_id'] = orderId;
+    if (orderId != null) parameters['stop_order_id'] = orderId;
     if (orderLinkId != null) parameters['order_link_id'] = orderLinkId;
     return await request(
         path: '/v2/private/stop-order/cancel',
