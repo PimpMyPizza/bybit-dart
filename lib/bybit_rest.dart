@@ -1050,11 +1050,14 @@ class ByBitRest {
   /// Set leverage.
   /// https://bybit-exchange.github.io/docs/inverse/#t-setleverage
   Future<Map<String, dynamic>?> setLeverage(
-      {required String symbol, required double leverage}) async {
+      {required String symbol,
+      required double leverage,
+      bool leverage_only = false}) async {
     log.d('ByBitRest.setLeverage');
     var parameters = <String, dynamic>{};
     parameters['symbol'] = symbol;
     parameters['leverage'] = leverage;
+    parameters['leverage_only'] = leverage_only;
     return await request(
         path: '/v2/private/position/leverage/save',
         type: 'POST',
@@ -1164,6 +1167,27 @@ class ByBitRest {
           page: page,
           limit: limit);
     }).asyncMap((event) async => await event));
+  }
+
+  /// Switch Cross/Isolated; must set leverage value when switching from Cross
+  /// to Isolated.
+  /// https://bybit-exchange.github.io/docs/inverse/#t-switchmode
+  Future<Map<String, dynamic>?> crossIsolatedMarginSwitch(
+      {required String symbol,
+      required bool is_isolated,
+      required double buy_leverage,
+      required double sell_leverage}) async {
+    log.d('ByBitRest.crossIsolatedMarginSwitch');
+    var parameters = <String, dynamic>{};
+    parameters['symbol'] = symbol;
+    parameters['is_isolated'] = is_isolated;
+    parameters['buy_leverage'] = buy_leverage;
+    parameters['sell_leverage'] = sell_leverage;
+    return await request(
+        path: '/v2/private/position/switch-isolated',
+        type: 'POST',
+        parameters: parameters,
+        withAuthentication: true);
   }
 
   /// Get risk limit.
