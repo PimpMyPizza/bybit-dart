@@ -1,3 +1,12 @@
+## [2.1.1]
+
+* Minor bug fixes.
+
+## [2.1.0]
+
+* Added API changes until 2022-02-28.
+* Minor bug fixes.
+
 ## [2.0.0]
 
 * Null safety
