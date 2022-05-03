@@ -218,50 +218,6 @@ class ByBit {
     rest.getSymbolsInfoPeriodic(period: period);
   }
 
-  /// Retrieve the liquidated orders.
-  ///
-  /// The query range is the last seven days of data. You can pass the [startTime]
-  /// and [endTime] timestamps (in milliseconds) or a trade-id ([from]) and/or
-  /// a [limit] (max 1000, default 500).
-  /// https://bybit-exchange.github.io/docs/inverse/?console#t-querysymbol
-  Future<Map<String, dynamic>?> getLiquidatedOrders(
-      {required String symbol,
-      int? from,
-      int? limit,
-      int? startTime,
-      int? endTime}) async {
-    log.i('Get the liquidated orders');
-    return await rest.getLiquidatedOrders(
-        symbol: symbol,
-        from: from,
-        limit: limit,
-        startTime: startTime,
-        endTime: endTime);
-  }
-
-  /// Retrieve the liquidated orders periodically
-  ///
-  /// The query range is the last seven days of data. You can pass the [startTime]
-  /// and [endTime] timestamps (in milliseconds) or a trade-id ([from]) and/or
-  /// a [limit] (max 1000, default 500).
-  /// https://bybit-exchange.github.io/docs/inverse/?console#t-querysymbol
-  void getLiquidatedOrdersPeriodic(
-      {required String symbol,
-      int? from,
-      int? limit,
-      int? startTime,
-      int? endTime,
-      required Duration period}) {
-    log.i('Retrieve the liquidated orders periodically.');
-    rest.getLiquidatedOrdersPeriodic(
-        symbol: symbol,
-        from: from,
-        limit: limit,
-        startTime: startTime,
-        endTime: endTime,
-        period: period);
-  }
-
   /// Query mark price kline (like Query Kline but for mark price).
   ///
   /// https://bybit-exchange.github.io/docs/inverse/#t-markpricekline

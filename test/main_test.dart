@@ -3,7 +3,6 @@ import 'test_get_order_book.dart';
 import 'test_get_tickers.dart';
 import 'test_get_trading_records.dart';
 import 'test_get_symbol_info.dart';
-import 'test_get_liquidated_orders.dart';
 import 'test_get_mark_price_kline.dart';
 import 'test_get_open_interest.dart';
 import 'test_get_latest_big_deals.dart';
@@ -47,7 +46,6 @@ void main() {
   testGetTickers();
   testGetTradingRecords();
   testGetSymbolsInfo();
-  testGetLiquidatedOrders();
   testGetMarkPriceKLine();
   testGetOpenInterest();
   testGetLatestBigDeals();

@@ -278,53 +278,6 @@ class ByBitRest {
     }).asyncMap((event) async => await event));
   }
 
-  /// Retrieve the liquidated orders.
-  ///
-  /// The query range is the last seven days of data. You can pass the [startTime]
-  /// and [endTime] timestamps (in milliseconds) or a trade-id ([from]) and/or
-  /// a [limit] (max 1000, default 500).
-  /// https://bybit-exchange.github.io/docs/inverse/?console#t-querysymbol
-  Future<Map<String, dynamic>?> getLiquidatedOrders(
-      {required String symbol,
-      int? from,
-      int? limit,
-      int? startTime,
-      int? endTime}) async {
-    log.d('ByBitRest.getLiquidatedOrders');
-    var parameters = <String, dynamic>{};
-    parameters['symbol'] = symbol;
-    if (from != null) parameters['from'] = from;
-    if (limit != null) parameters['limit'] = limit;
-    if (startTime != null) parameters['start_time'] = startTime;
-    if (endTime != null) parameters['end_time'] = endTime;
-    return await request(
-        path: '/v2/public/liq-records', type: 'GET', parameters: parameters);
-  }
-
-  /// Retrieve the liquidated orders periodically
-  ///
-  /// The query range is the last seven days of data. You can pass the [startTime]
-  /// and [endTime] timestamps (in milliseconds) or a trade-id ([from]) and/or
-  /// a [limit] (max 1000, default 500).
-  /// https://bybit-exchange.github.io/docs/inverse/?console#t-querysymbol
-  void getLiquidatedOrdersPeriodic(
-      {required String symbol,
-      int? from,
-      int? limit,
-      int? startTime,
-      int? endTime,
-      required Duration period}) {
-    log.d('ByBitRest.getLiquidatedOrdersPeriodic');
-    streamGroup!.add(Stream.periodic(period, (_) {
-      return getLiquidatedOrders(
-          symbol: symbol,
-          from: from,
-          limit: limit,
-          startTime: startTime,
-          endTime: endTime);
-    }).asyncMap((event) async => await event));
-  }
-
   /// Query mark price kline (like Query Kline but for mark price).
   ///
   /// https://bybit-exchange.github.io/docs/inverse/#t-markpricekline
