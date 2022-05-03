@@ -904,6 +904,43 @@ class ByBit {
         period: period);
   }
 
+  /// Full/Partial Position TP/SL Switch : Switch mode between Full or Partial
+  /// https://bybit-exchange.github.io/docs/inverse/#t-switchmode
+  Future<Map<String, dynamic>?> fullPartialPositionTPSLSwitch(
+      {required String symbol, required String tp_sl_mode}) async {
+    log.i('Switch Full/Partial position TP/SL.');
+    return await rest.fullPartialPositionTPSLSwitch(
+      symbol: symbol,
+      tp_sl_mode: tp_sl_mode,
+    );
+  }
+
+  /// Switch Cross/Isolated; must set leverage value when switching from Cross
+  /// to Isolated.
+  /// https://bybit-exchange.github.io/docs/inverse/#t-marginswitch
+  Future<Map<String, dynamic>?> crossIsolatedMarginSwitch({
+    required String symbol,
+    required bool isIsolated,
+    required double buyLeverage,
+    required double sellLeverage,
+  }) async {
+    log.i('Switch Isolated/Margin mode.');
+    return await rest.crossIsolatedMarginSwitch(
+      symbol: symbol,
+      isIsolated: isIsolated,
+      buyLeverage: buyLeverage,
+      sellLeverage: sellLeverage,
+    );
+  }
+
+  /// Get trading fee rate for a given symbol
+  /// https://bybit-exchange.github.io/docs/inverse/#t-queryfeerate
+  Future<Map<String, dynamic>?> getTradingFeeRate(
+      {required String symbol}) async {
+    log.i('Get user closed profit (PNL).');
+    return await rest.getTradingFeeRate(symbol: symbol);
+  }
+
   /// Get risk limit
   /// https://bybit-exchange.github.io/docs/inverse/#t-risklimit
   Future<Map<String, dynamic>?> getRiskLimit() async {

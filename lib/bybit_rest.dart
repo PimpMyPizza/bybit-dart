@@ -1170,7 +1170,7 @@ class ByBitRest {
 
   /// Full/Partial Position TP/SL Switch : Switch mode between Full or Partial
   /// https://bybit-exchange.github.io/docs/inverse/#t-switchmode
-  Future<Map<String, dynamic>?> positionTPSLSwitch(
+  Future<Map<String, dynamic>?> fullPartialPositionTPSLSwitch(
       {required String symbol, required String tp_sl_mode}) async {
     log.d('ByBitRest.crossIsolatedMarginSwitch');
     var parameters = <String, dynamic>{};
@@ -1201,6 +1201,21 @@ class ByBitRest {
     parameters['sell_leverage'] = sellLeverage;
     return await request(
       path: '/v2/private/position/switch-isolated',
+      type: 'POST',
+      parameters: parameters,
+      withAuthentication: true,
+    );
+  }
+
+  /// Query Trading Fee Rate
+  /// https://bybit-exchange.github.io/docs/inverse/#t-queryfeerate
+  Future<Map<String, dynamic>?> getTradingFeeRate(
+      {required String symbol}) async {
+    log.d('ByBitRest.crossIsolatedMarginSwitch');
+    var parameters = <String, dynamic>{};
+    parameters['symbol'] = symbol;
+    return await request(
+      path: '/v2/private/position/fee-rate',
       type: 'POST',
       parameters: parameters,
       withAuthentication: true,
