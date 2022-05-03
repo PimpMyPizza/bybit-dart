@@ -907,11 +907,11 @@ class ByBit {
   /// Full/Partial Position TP/SL Switch : Switch mode between Full or Partial
   /// https://bybit-exchange.github.io/docs/inverse/#t-switchmode
   Future<Map<String, dynamic>?> fullPartialPositionTPSLSwitch(
-      {required String symbol, required String tp_sl_mode}) async {
+      {required String symbol, required String tpSlMode}) async {
     log.i('Switch Full/Partial position TP/SL.');
     return await rest.fullPartialPositionTPSLSwitch(
       symbol: symbol,
-      tp_sl_mode: tp_sl_mode,
+      tpSlMode: tpSlMode,
     );
   }
 

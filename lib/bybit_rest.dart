@@ -1171,11 +1171,11 @@ class ByBitRest {
   /// Full/Partial Position TP/SL Switch : Switch mode between Full or Partial
   /// https://bybit-exchange.github.io/docs/inverse/#t-switchmode
   Future<Map<String, dynamic>?> fullPartialPositionTPSLSwitch(
-      {required String symbol, required String tp_sl_mode}) async {
+      {required String symbol, required String tpSlMode}) async {
     log.d('ByBitRest.crossIsolatedMarginSwitch');
     var parameters = <String, dynamic>{};
     parameters['symbol'] = symbol;
-    parameters['tp_sl_mode'] = tp_sl_mode;
+    parameters['tp_sl_mode'] = tpSlMode;
     return await request(
       path: '/v2/private/tpsl/switch-mode',
       type: 'POST',
