@@ -1093,13 +1093,13 @@ class ByBitRest {
   Future<Map<String, dynamic>?> setLeverage({
     required String symbol,
     required double leverage,
-    bool leverageOnly = false,
+    bool? leverageOnly,
   }) async {
     log.d('ByBitRest.setLeverage');
     var parameters = <String, dynamic>{};
     parameters['symbol'] = symbol;
     parameters['leverage'] = leverage;
-    parameters['leverage_only'] = leverageOnly;
+    if (leverageOnly != null) parameters['leverage_only'] = leverageOnly;
     return await request(
       path: '/v2/private/position/leverage/save',
       type: 'POST',
@@ -1168,13 +1168,14 @@ class ByBitRest {
 
   /// Get user's closed profit and loss records.
   /// https://bybit-exchange.github.io/docs/inverse/#t-closedprofitandloss
-  Future<Map<String, dynamic>?> getUserClosedProfit(
-      {required String symbol,
-      int? startTime,
-      int? endTime,
-      String? execType,
-      int? page,
-      int? limit}) async {
+  Future<Map<String, dynamic>?> getUserClosedProfit({
+    required String symbol,
+    int? startTime,
+    int? endTime,
+    String? execType,
+    int? page,
+    int? limit,
+  }) async {
     log.d('ByBitRest.getUserClosedProfit');
     var parameters = <String, dynamic>{};
     parameters['symbol'] = symbol;
@@ -1184,31 +1185,34 @@ class ByBitRest {
     if (page != null) parameters['page'] = page;
     if (limit != null) parameters['limit'] = limit;
     return await request(
-        path: '/v2/private/trade/closed-pnl/list',
-        type: 'GET',
-        parameters: parameters,
-        withAuthentication: true);
+      path: '/v2/private/trade/closed-pnl/list',
+      type: 'GET',
+      parameters: parameters,
+      withAuthentication: true,
+    );
   }
 
   /// Get user's closed profit and loss records periodically.
   /// https://bybit-exchange.github.io/docs/inverse/#t-closedprofitandloss
-  void getUserClosedProfitPeriodic(
-      {required String symbol,
-      int? startTime,
-      int? endTime,
-      String? execType,
-      int? page,
-      int? limit,
-      required Duration period}) {
+  void getUserClosedProfitPeriodic({
+    required String symbol,
+    int? startTime,
+    int? endTime,
+    String? execType,
+    int? page,
+    int? limit,
+    required Duration period,
+  }) {
     log.d('ByBitRest.getUserClosedProfitPeriodic');
     streamGroup!.add(Stream.periodic(period, (_) {
       return getUserClosedProfit(
-          symbol: symbol,
-          startTime: startTime,
-          endTime: endTime,
-          execType: execType,
-          page: page,
-          limit: limit);
+        symbol: symbol,
+        startTime: startTime,
+        endTime: endTime,
+        execType: execType,
+        page: page,
+        limit: limit,
+      );
     }).asyncMap((event) async => await event));
   }
 
