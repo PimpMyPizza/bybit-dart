@@ -229,15 +229,14 @@ class ByBitRest {
   /// Get recent trades.
   ///
   /// Returns the last trades from a trade id [from] with a limit of [limit]
-  /// trades. If no [from] value is given, the latest [limit] trades will be
+  /// trades. The latest [limit] trades will be
   /// returned (default [limit]: 500, max: 1000)
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-publictradingrecords
   Future<Map<String, dynamic>?> getTradingRecords(
-      {required String symbol, int? from, int? limit}) async {
+      {required String symbol, int? limit}) async {
     log.d('ByBitRest.getTradingRecords');
     var parameters = <String, dynamic>{};
     parameters['symbol'] = symbol;
-    if (from != null) parameters['from'] = from;
     if (limit != null) parameters['limit'] = limit;
     return await request(
         path: '/v2/public/trading-records',
@@ -258,7 +257,7 @@ class ByBitRest {
       required Duration period}) {
     log.d('ByBitRest.getTradingRecordsPeriodic');
     streamGroup!.add(Stream.periodic(period, (_) {
-      return getTradingRecords(symbol: symbol, from: from, limit: limit);
+      return getTradingRecords(symbol: symbol, limit: limit);
     }).asyncMap((event) async => await event));
   }
 

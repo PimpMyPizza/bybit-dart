@@ -178,14 +178,13 @@ class ByBit {
   /// Get recent trades.
   ///
   /// Returns the last trades from a trade id [from] with a limit of [limit]
-  /// trades. If no [from] value is given, the latest [limit] trades will be
+  /// trades. The latest [limit] trades will be
   /// returned (default [limit]: 500, max: 1000)
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-publictradingrecords
   Future<Map<String, dynamic>?> getTradingRecords(
-      {required String symbol, int? from, int? limit}) async {
+      {required String symbol, int? limit}) async {
     log.i('Get trading records');
-    return await rest.getTradingRecords(
-        symbol: symbol, from: from, limit: limit);
+    return await rest.getTradingRecords(symbol: symbol, limit: limit);
   }
 
   /// Get recent trades periodically.
