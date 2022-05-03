@@ -178,14 +178,13 @@ class ByBit {
   /// Get recent trades.
   ///
   /// Returns the last trades from a trade id [from] with a limit of [limit]
-  /// trades. If no [from] value is given, the latest [limit] trades will be
+  /// trades. The latest [limit] trades will be
   /// returned (default [limit]: 500, max: 1000)
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-publictradingrecords
   Future<Map<String, dynamic>?> getTradingRecords(
-      {required String symbol, int? from, int? limit}) async {
+      {required String symbol, int? limit}) async {
     log.i('Get trading records');
-    return await rest.getTradingRecords(
-        symbol: symbol, from: from, limit: limit);
+    return await rest.getTradingRecords(symbol: symbol, limit: limit);
   }
 
   /// Get recent trades periodically.
@@ -216,50 +215,6 @@ class ByBit {
   void getSymbolsInfoPeriodic({required Duration period}) {
     log.i('Get the information for all symbols periodically.');
     rest.getSymbolsInfoPeriodic(period: period);
-  }
-
-  /// Retrieve the liquidated orders.
-  ///
-  /// The query range is the last seven days of data. You can pass the [startTime]
-  /// and [endTime] timestamps (in milliseconds) or a trade-id ([from]) and/or
-  /// a [limit] (max 1000, default 500).
-  /// https://bybit-exchange.github.io/docs/inverse/?console#t-querysymbol
-  Future<Map<String, dynamic>?> getLiquidatedOrders(
-      {required String symbol,
-      int? from,
-      int? limit,
-      int? startTime,
-      int? endTime}) async {
-    log.i('Get the liquidated orders');
-    return await rest.getLiquidatedOrders(
-        symbol: symbol,
-        from: from,
-        limit: limit,
-        startTime: startTime,
-        endTime: endTime);
-  }
-
-  /// Retrieve the liquidated orders periodically
-  ///
-  /// The query range is the last seven days of data. You can pass the [startTime]
-  /// and [endTime] timestamps (in milliseconds) or a trade-id ([from]) and/or
-  /// a [limit] (max 1000, default 500).
-  /// https://bybit-exchange.github.io/docs/inverse/?console#t-querysymbol
-  void getLiquidatedOrdersPeriodic(
-      {required String symbol,
-      int? from,
-      int? limit,
-      int? startTime,
-      int? endTime,
-      required Duration period}) {
-    log.i('Retrieve the liquidated orders periodically.');
-    rest.getLiquidatedOrdersPeriodic(
-        symbol: symbol,
-        from: from,
-        limit: limit,
-        startTime: startTime,
-        endTime: endTime,
-        period: period);
   }
 
   /// Query mark price kline (like Query Kline but for mark price).
@@ -947,6 +902,43 @@ class ByBit {
         page: page,
         limit: limit,
         period: period);
+  }
+
+  /// Full/Partial Position TP/SL Switch : Switch mode between Full or Partial
+  /// https://bybit-exchange.github.io/docs/inverse/#t-switchmode
+  Future<Map<String, dynamic>?> fullPartialPositionTPSLSwitch(
+      {required String symbol, required String tp_sl_mode}) async {
+    log.i('Switch Full/Partial position TP/SL.');
+    return await rest.fullPartialPositionTPSLSwitch(
+      symbol: symbol,
+      tp_sl_mode: tp_sl_mode,
+    );
+  }
+
+  /// Switch Cross/Isolated; must set leverage value when switching from Cross
+  /// to Isolated.
+  /// https://bybit-exchange.github.io/docs/inverse/#t-marginswitch
+  Future<Map<String, dynamic>?> crossIsolatedMarginSwitch({
+    required String symbol,
+    required bool isIsolated,
+    required double buyLeverage,
+    required double sellLeverage,
+  }) async {
+    log.i('Switch Isolated/Margin mode.');
+    return await rest.crossIsolatedMarginSwitch(
+      symbol: symbol,
+      isIsolated: isIsolated,
+      buyLeverage: buyLeverage,
+      sellLeverage: sellLeverage,
+    );
+  }
+
+  /// Get trading fee rate for a given symbol
+  /// https://bybit-exchange.github.io/docs/inverse/#t-queryfeerate
+  Future<Map<String, dynamic>?> getTradingFeeRate(
+      {required String symbol}) async {
+    log.i('Get user closed profit (PNL).');
+    return await rest.getTradingFeeRate(symbol: symbol);
   }
 
   /// Get risk limit

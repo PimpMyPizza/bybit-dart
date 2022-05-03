@@ -229,15 +229,14 @@ class ByBitRest {
   /// Get recent trades.
   ///
   /// Returns the last trades from a trade id [from] with a limit of [limit]
-  /// trades. If no [from] value is given, the latest [limit] trades will be
+  /// trades. The latest [limit] trades will be
   /// returned (default [limit]: 500, max: 1000)
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-publictradingrecords
   Future<Map<String, dynamic>?> getTradingRecords(
-      {required String symbol, int? from, int? limit}) async {
+      {required String symbol, int? limit}) async {
     log.d('ByBitRest.getTradingRecords');
     var parameters = <String, dynamic>{};
     parameters['symbol'] = symbol;
-    if (from != null) parameters['from'] = from;
     if (limit != null) parameters['limit'] = limit;
     return await request(
         path: '/v2/public/trading-records',
@@ -258,7 +257,7 @@ class ByBitRest {
       required Duration period}) {
     log.d('ByBitRest.getTradingRecordsPeriodic');
     streamGroup!.add(Stream.periodic(period, (_) {
-      return getTradingRecords(symbol: symbol, from: from, limit: limit);
+      return getTradingRecords(symbol: symbol, limit: limit);
     }).asyncMap((event) async => await event));
   }
 
@@ -275,53 +274,6 @@ class ByBitRest {
     log.d('ByBitRest.getSymbolsInfoPeriodic');
     streamGroup!.add(Stream.periodic(period, (_) {
       return getSymbolsInfo();
-    }).asyncMap((event) async => await event));
-  }
-
-  /// Retrieve the liquidated orders.
-  ///
-  /// The query range is the last seven days of data. You can pass the [startTime]
-  /// and [endTime] timestamps (in milliseconds) or a trade-id ([from]) and/or
-  /// a [limit] (max 1000, default 500).
-  /// https://bybit-exchange.github.io/docs/inverse/?console#t-querysymbol
-  Future<Map<String, dynamic>?> getLiquidatedOrders(
-      {required String symbol,
-      int? from,
-      int? limit,
-      int? startTime,
-      int? endTime}) async {
-    log.d('ByBitRest.getLiquidatedOrders');
-    var parameters = <String, dynamic>{};
-    parameters['symbol'] = symbol;
-    if (from != null) parameters['from'] = from;
-    if (limit != null) parameters['limit'] = limit;
-    if (startTime != null) parameters['start_time'] = startTime;
-    if (endTime != null) parameters['end_time'] = endTime;
-    return await request(
-        path: '/v2/public/liq-records', type: 'GET', parameters: parameters);
-  }
-
-  /// Retrieve the liquidated orders periodically
-  ///
-  /// The query range is the last seven days of data. You can pass the [startTime]
-  /// and [endTime] timestamps (in milliseconds) or a trade-id ([from]) and/or
-  /// a [limit] (max 1000, default 500).
-  /// https://bybit-exchange.github.io/docs/inverse/?console#t-querysymbol
-  void getLiquidatedOrdersPeriodic(
-      {required String symbol,
-      int? from,
-      int? limit,
-      int? startTime,
-      int? endTime,
-      required Duration period}) {
-    log.d('ByBitRest.getLiquidatedOrdersPeriodic');
-    streamGroup!.add(Stream.periodic(period, (_) {
-      return getLiquidatedOrders(
-          symbol: symbol,
-          from: from,
-          limit: limit,
-          startTime: startTime,
-          endTime: endTime);
     }).asyncMap((event) async => await event));
   }
 
@@ -460,18 +412,21 @@ class ByBitRest {
 
   /// Place active order
   /// https://bybit-exchange.github.io/docs/inverse/?console#t-placeactive
-  Future<Map<String, dynamic>?> placeActiveOrder(
-      {required String symbol,
-      required String side,
-      required String orderType,
-      required int quantity,
-      required String timeInForce,
-      double? price,
-      double? takeProfit,
-      double? stopLoss,
-      bool? reduceOnly,
-      bool? closeOnTrigger,
-      String? orderLinkId}) async {
+  Future<Map<String, dynamic>?> placeActiveOrder({
+    required String symbol,
+    required String side,
+    required String orderType,
+    required int quantity,
+    required String timeInForce,
+    double? price,
+    double? takeProfit,
+    double? stopLoss,
+    bool? reduceOnly,
+    bool? closeOnTrigger,
+    String? orderLinkId,
+    String? tpTriggerBy,
+    String? slTriggerBy,
+  }) async {
     log.d('ByBitRest.placeActiveOrder');
     var parameters = <String, dynamic>{};
     parameters['symbol'] = symbol;
@@ -485,11 +440,14 @@ class ByBitRest {
     if (reduceOnly != null) parameters['reduce_only'] = reduceOnly;
     if (closeOnTrigger != null) parameters['close_on_trigger'] = closeOnTrigger;
     if (orderLinkId != null) parameters['order_link_id'] = orderLinkId;
+    if (tpTriggerBy != null) parameters['tp_trigger_by'] = tpTriggerBy;
+    if (slTriggerBy != null) parameters['sl_trigger_by'] = slTriggerBy;
     return await request(
-        path: '/v2/private/order/create',
-        type: 'POST',
-        parameters: parameters,
-        withAuthentication: true);
+      path: '/v2/private/order/create',
+      type: 'POST',
+      parameters: parameters,
+      withAuthentication: true,
+    );
   }
 
   /// Place active order periodically.
@@ -624,12 +582,17 @@ class ByBitRest {
 
   /// Replace order can modify/amend your active orders.
   /// https://bybit-exchange.github.io/docs/inverse/#t-replaceactive
-  Future<Map<String, dynamic>?> updateActiveOrder(
-      {required String symbol,
-      String? orderId,
-      String? orderLinkId,
-      int? newOrderQuantity,
-      double? newOrderPrice}) async {
+  Future<Map<String, dynamic>?> updateActiveOrder({
+    required String symbol,
+    String? orderId,
+    String? orderLinkId,
+    int? newOrderQuantity,
+    double? newOrderPrice,
+    double? takeProfit,
+    double? stopLoss,
+    String? tpTriggerBy,
+    String? slTriggerBy,
+  }) async {
     log.d('ByBitRest.updateActiveOrder');
     var parameters = <String, dynamic>{};
     parameters['symbol'] = symbol;
@@ -641,11 +604,16 @@ class ByBitRest {
     if (newOrderPrice != null) {
       parameters['p_r_price'] = newOrderPrice.toString();
     }
+    if (takeProfit != null) parameters['take_profit'] = takeProfit;
+    if (stopLoss != null) parameters['stop_loss'] = stopLoss;
+    if (tpTriggerBy != null) parameters['tp_trigger_by'] = tpTriggerBy;
+    if (slTriggerBy != null) parameters['sl_trigger_by'] = slTriggerBy;
     return await request(
-        path: '/v2/private/order/replace',
-        type: 'POST',
-        parameters: parameters,
-        withAuthentication: true);
+      path: '/v2/private/order/replace',
+      type: 'POST',
+      parameters: parameters,
+      withAuthentication: true,
+    );
   }
 
   /// Replace order can modify/amend your active orders periodically.
@@ -700,18 +668,23 @@ class ByBitRest {
 
   /// Place a market price conditional order
   /// https://bybit-exchange.github.io/docs/inverse/#t-placecond
-  Future<Map<String, dynamic>?> placeConditionalOrder(
-      {required String symbol,
-      required String side,
-      required String orderType,
-      required int quantity,
-      double? price,
-      required double basePrice,
-      required double triggerPrice,
-      required String timeInForce,
-      String? triggerBy,
-      bool? closeOnTrigger,
-      String? orderLinkId}) async {
+  Future<Map<String, dynamic>?> placeConditionalOrder({
+    required String symbol,
+    required String side,
+    required String orderType,
+    required int quantity,
+    double? price,
+    required double basePrice,
+    required double triggerPrice,
+    required String timeInForce,
+    String? triggerBy,
+    bool? closeOnTrigger,
+    String? orderLinkId,
+    double? takeProfit,
+    double? stopLoss,
+    String? tpTriggerBy,
+    String? slTriggerBy,
+  }) async {
     log.d('ByBitRest.placeConditionalOrder');
     var parameters = <String, dynamic>{};
     parameters['symbol'] = symbol;
@@ -725,6 +698,10 @@ class ByBitRest {
     if (price != null) parameters['price'] = price.toString();
     if (closeOnTrigger != null) parameters['close_on_trigger'] = closeOnTrigger;
     if (orderLinkId != null) parameters['order_link_id'] = orderLinkId;
+    if (takeProfit != null) parameters['take_profit'] = takeProfit;
+    if (stopLoss != null) parameters['stop_loss'] = stopLoss;
+    if (tpTriggerBy != null) parameters['tp_trigger_by'] = tpTriggerBy;
+    if (slTriggerBy != null) parameters['sl_trigger_by'] = slTriggerBy;
     return await request(
         path: '/v2/private/stop-order/create',
         type: 'POST',
@@ -815,7 +792,7 @@ class ByBitRest {
     log.d('ByBitRest.cancelConditionalOrder');
     var parameters = <String, dynamic>{};
     parameters['symbol'] = symbol;
-    if (orderId != null) parameters['order_id'] = orderId;
+    if (orderId != null) parameters['stop_order_id'] = orderId;
     if (orderLinkId != null) parameters['order_link_id'] = orderLinkId;
     return await request(
         path: '/v2/private/stop-order/cancel',
@@ -864,13 +841,18 @@ class ByBitRest {
 
   /// Update conditional order.
   /// https://bybit-exchange.github.io/docs/inverse/#t-replacecond
-  Future<Map<String, dynamic>?> updateConditionalOrder(
-      {required String symbol,
-      String? stopOrderId,
-      String? orderLinkId,
-      int? newOrderQuantity,
-      double? newOrderPrice,
-      double? newTriggerPrice}) async {
+  Future<Map<String, dynamic>?> updateConditionalOrder({
+    required String symbol,
+    String? stopOrderId,
+    String? orderLinkId,
+    int? newOrderQuantity,
+    double? newOrderPrice,
+    double? newTriggerPrice,
+    double? takeProfit,
+    double? stopLoss,
+    String? tpTriggerBy,
+    String? slTriggerBy,
+  }) async {
     log.d('ByBitRest.updateConditionalOrder');
     var parameters = <String, dynamic>{};
     parameters['symbol'] = symbol;
@@ -885,11 +867,16 @@ class ByBitRest {
     if (newTriggerPrice != null) {
       parameters['p_r_trigger_price'] = newTriggerPrice.toString();
     }
+    if (takeProfit != null) parameters['take_profit'] = takeProfit;
+    if (stopLoss != null) parameters['stop_loss'] = stopLoss;
+    if (tpTriggerBy != null) parameters['tp_trigger_by'] = tpTriggerBy;
+    if (slTriggerBy != null) parameters['sl_trigger_by'] = slTriggerBy;
     return await request(
-        path: '/v2/private/stop-order/replace',
-        type: 'POST',
-        parameters: parameters,
-        withAuthentication: true);
+      path: '/v2/private/stop-order/replace',
+      type: 'POST',
+      parameters: parameters,
+      withAuthentication: true,
+    );
   }
 
   /// Update conditional order periodically.
@@ -997,14 +984,17 @@ class ByBitRest {
 
   /// Set trading-stop.
   /// https://bybit-exchange.github.io/docs/inverse/#t-tradingstop
-  Future<Map<String, dynamic>?> setTradingStop(
-      {required String symbol,
-      double? takeProfit,
-      double? stopLoss,
-      double? trailingStop,
-      String? tpTriggerBy,
-      String? slTriggerBy,
-      double? newTrailingTriggerPrice}) async {
+  Future<Map<String, dynamic>?> setTradingStop({
+    required String symbol,
+    double? takeProfit,
+    double? stopLoss,
+    double? trailingStop,
+    String? tpTriggerBy,
+    String? slTriggerBy,
+    double? newTrailingTriggerPrice,
+    double? tpSize,
+    double? slSize,
+  }) async {
     log.d('ByBitRest.setTradingStop');
     var parameters = <String, dynamic>{};
     parameters['symbol'] = symbol;
@@ -1013,14 +1003,17 @@ class ByBitRest {
     if (trailingStop != null) parameters['trailing_stop'] = trailingStop;
     if (tpTriggerBy != null) parameters['tp_trigger_by'] = tpTriggerBy;
     if (slTriggerBy != null) parameters['sl_trigger_by'] = slTriggerBy;
+    if (tpSize != null) parameters['tp_size'] = tpSize;
+    if (slSize != null) parameters['sl_size'] = slSize;
     if (newTrailingTriggerPrice != null) {
       parameters['new_trailing_active'] = newTrailingTriggerPrice;
     }
     return await request(
-        path: '/v2/private/position/trading-stop',
-        type: 'POST',
-        parameters: parameters,
-        withAuthentication: true);
+      path: '/v2/private/position/trading-stop',
+      type: 'POST',
+      parameters: parameters,
+      withAuthentication: true,
+    );
   }
 
   /// Set trading-stop periodically.
@@ -1049,17 +1042,22 @@ class ByBitRest {
 
   /// Set leverage.
   /// https://bybit-exchange.github.io/docs/inverse/#t-setleverage
-  Future<Map<String, dynamic>?> setLeverage(
-      {required String symbol, required double leverage}) async {
+  Future<Map<String, dynamic>?> setLeverage({
+    required String symbol,
+    required double leverage,
+    bool? leverageOnly,
+  }) async {
     log.d('ByBitRest.setLeverage');
     var parameters = <String, dynamic>{};
     parameters['symbol'] = symbol;
     parameters['leverage'] = leverage;
+    if (leverageOnly != null) parameters['leverage_only'] = leverageOnly;
     return await request(
-        path: '/v2/private/position/leverage/save',
-        type: 'POST',
-        parameters: parameters,
-        withAuthentication: true);
+      path: '/v2/private/position/leverage/save',
+      type: 'POST',
+      parameters: parameters,
+      withAuthentication: true,
+    );
   }
 
   /// Set leverage periodically.
@@ -1122,13 +1120,14 @@ class ByBitRest {
 
   /// Get user's closed profit and loss records.
   /// https://bybit-exchange.github.io/docs/inverse/#t-closedprofitandloss
-  Future<Map<String, dynamic>?> getUserClosedProfit(
-      {required String symbol,
-      int? startTime,
-      int? endTime,
-      String? execType,
-      int? page,
-      int? limit}) async {
+  Future<Map<String, dynamic>?> getUserClosedProfit({
+    required String symbol,
+    int? startTime,
+    int? endTime,
+    String? execType,
+    int? page,
+    int? limit,
+  }) async {
     log.d('ByBitRest.getUserClosedProfit');
     var parameters = <String, dynamic>{};
     parameters['symbol'] = symbol;
@@ -1138,32 +1137,89 @@ class ByBitRest {
     if (page != null) parameters['page'] = page;
     if (limit != null) parameters['limit'] = limit;
     return await request(
-        path: '/v2/private/trade/closed-pnl/list',
-        type: 'GET',
-        parameters: parameters,
-        withAuthentication: true);
+      path: '/v2/private/trade/closed-pnl/list',
+      type: 'GET',
+      parameters: parameters,
+      withAuthentication: true,
+    );
   }
 
   /// Get user's closed profit and loss records periodically.
   /// https://bybit-exchange.github.io/docs/inverse/#t-closedprofitandloss
-  void getUserClosedProfitPeriodic(
-      {required String symbol,
-      int? startTime,
-      int? endTime,
-      String? execType,
-      int? page,
-      int? limit,
-      required Duration period}) {
+  void getUserClosedProfitPeriodic({
+    required String symbol,
+    int? startTime,
+    int? endTime,
+    String? execType,
+    int? page,
+    int? limit,
+    required Duration period,
+  }) {
     log.d('ByBitRest.getUserClosedProfitPeriodic');
     streamGroup!.add(Stream.periodic(period, (_) {
       return getUserClosedProfit(
-          symbol: symbol,
-          startTime: startTime,
-          endTime: endTime,
-          execType: execType,
-          page: page,
-          limit: limit);
+        symbol: symbol,
+        startTime: startTime,
+        endTime: endTime,
+        execType: execType,
+        page: page,
+        limit: limit,
+      );
     }).asyncMap((event) async => await event));
+  }
+
+  /// Full/Partial Position TP/SL Switch : Switch mode between Full or Partial
+  /// https://bybit-exchange.github.io/docs/inverse/#t-switchmode
+  Future<Map<String, dynamic>?> fullPartialPositionTPSLSwitch(
+      {required String symbol, required String tp_sl_mode}) async {
+    log.d('ByBitRest.crossIsolatedMarginSwitch');
+    var parameters = <String, dynamic>{};
+    parameters['symbol'] = symbol;
+    parameters['tp_sl_mode'] = tp_sl_mode;
+    return await request(
+      path: '/v2/private/tpsl/switch-mode',
+      type: 'POST',
+      parameters: parameters,
+      withAuthentication: true,
+    );
+  }
+
+  /// Switch Cross/Isolated; must set leverage value when switching from Cross
+  /// to Isolated.
+  /// https://bybit-exchange.github.io/docs/inverse/#t-marginswitch
+  Future<Map<String, dynamic>?> crossIsolatedMarginSwitch({
+    required String symbol,
+    required bool isIsolated,
+    required double buyLeverage,
+    required double sellLeverage,
+  }) async {
+    log.d('ByBitRest.crossIsolatedMarginSwitch');
+    var parameters = <String, dynamic>{};
+    parameters['symbol'] = symbol;
+    parameters['is_isolated'] = isIsolated;
+    parameters['buy_leverage'] = buyLeverage;
+    parameters['sell_leverage'] = sellLeverage;
+    return await request(
+      path: '/v2/private/position/switch-isolated',
+      type: 'POST',
+      parameters: parameters,
+      withAuthentication: true,
+    );
+  }
+
+  /// Query Trading Fee Rate
+  /// https://bybit-exchange.github.io/docs/inverse/#t-queryfeerate
+  Future<Map<String, dynamic>?> getTradingFeeRate(
+      {required String symbol}) async {
+    log.d('ByBitRest.crossIsolatedMarginSwitch');
+    var parameters = <String, dynamic>{};
+    parameters['symbol'] = symbol;
+    return await request(
+      path: '/v2/private/position/fee-rate',
+      type: 'POST',
+      parameters: parameters,
+      withAuthentication: true,
+    );
   }
 
   /// Get risk limit.
